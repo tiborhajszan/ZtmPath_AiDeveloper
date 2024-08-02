@@ -1,6 +1,7 @@
 ### Course: Zero ta Mestery Academy | Prompt Engineering
 ### Project: Building a Snake Game
-### project_snakeGame2.py: Snake Game Version 2 (fully functional and customized)
+### snake_game_2.py: Snake Game Version 2 (fully functional and customized)
+### Code by ChatGPT, Comments by Tibor Hajszan
 
 ### imports
 import pygame
@@ -47,14 +48,14 @@ def message(msg, color):
     mesg_rect = mesg.get_rect(center=(width/2,height/2))
     window.blit(mesg, mesg_rect)
 
-### game loop function
+### function executing game
 def gameLoop():
 
-    ### game termination flags
+    ## game termination flags
     game_over = False
     game_close = False
 
-    ### snake parameter inits
+    ## snake parameter inits
     x1 = width / 2
     y1 = height / 2
     x1_change = 0
@@ -62,20 +63,21 @@ def gameLoop():
     snake_list = []
     length_of_snake = 1
 
-    ### initial food coordinates
+    ## initial food coordinates
     foodx = round(random.randrange(0, width - snake_block) / 10.0) * 10.0
     foody = round(random.randrange(0, height - snake_block) / 10.0) * 10.0
 
-    ### executing game
+    ## executing game
     while not game_over:
 
-        ### terminating game
+        # closing game
         while game_close:
+            # displaying end-of-game message
             window.fill(white)
             message("Game Over! Womp Womp. Press Q to quit or C to play again.", red)
             your_score(length_of_snake - 1)
             pygame.display.update()
-
+            # monitoring user input > quit | continue
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
@@ -84,7 +86,7 @@ def gameLoop():
                     if event.key == pygame.K_c:
                         gameLoop()
 
-        ### collecting user input
+        # monitoring user input > snake direction
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
@@ -102,12 +104,19 @@ def gameLoop():
                     y1_change = snake_block
                     x1_change = 0
 
+        # snake hitting the wall > game close
         if x1 >= width or x1 < 0 or y1 >= height or y1 < 0:
             game_close = True
+        
+        # updating snake head coordinates
         x1 += x1_change
         y1 += y1_change
+
+        # drawing food
         window.fill(white)
         pygame.draw.rect(window, orange, [foodx, foody, snake_block, snake_block])
+
+        # listing snake body coordinates
         snake_head = []
         snake_head.append(x1)
         snake_head.append(y1)
@@ -115,25 +124,30 @@ def gameLoop():
         if len(snake_list) > length_of_snake:
             del snake_list[0]
 
+        # snake biting itself > game close
         for x in snake_list[:-1]:
             if x == snake_head:
                 game_close = True
 
+        # redrawing snake and score
         our_snake(snake_block, snake_list)
         your_score(length_of_snake - 1)
 
+        # updating screen
         pygame.display.update()
 
+        # snake eating food > new food and elongating snake
         if x1 == foodx and y1 == foody:
             foodx = round(random.randrange(0, width - snake_block) / 10.0) * 10.0
             foody = round(random.randrange(0, height - snake_block) / 10.0) * 10.0
             length_of_snake += 1
 
+        # setting snake speed
         clock.tick(snake_speed)
 
+    ## terminating game and closing game window
     pygame.quit()
     quit()
 
-# Run the game
+### running game
 gameLoop()
-

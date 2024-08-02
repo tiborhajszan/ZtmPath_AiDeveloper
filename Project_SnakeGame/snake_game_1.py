@@ -1,6 +1,6 @@
 ### Course: Zero ta Mestery Academy | Prompt Engineering
 ### Project: Building a Snake Game
-### project_snakeGame1.py: Snake Game Version 1 (functional but incomplete)
+### snake_game_1.py: Snake Game Version 1 (functional but incomplete)
 
 import pygame
 import time
