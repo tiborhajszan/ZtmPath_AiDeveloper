@@ -1,11 +1,25 @@
-import random
+### Course: Zero to Mastery Academy | Prompt Engineering
+### Section 5: Building Tic-Tac-Toe Game
+### Game code, docstrings, and comments were all created by ChatGPT.
 
-def display_board(board):
-    print(f"{board[0]} | {board[1]} | {board[2]}")
+### function displaying the current board ------------------------------------------------------------------------------
+def display_board(board=list()) -> None:
+    """
+    Displays the current state of the Tic-Tac-Toe board.
+    
+    Args:
+        board (list[str]): List of 9 elements representing the current board. Elements are 'X' | 'O' | ' '.
+    """
+
+    ### function main logic
+    print(f"\n{board[0]} | {board[1]} | {board[2]}")
     print("--+---+--")
     print(f"{board[3]} | {board[4]} | {board[5]}")
     print("--+---+--")
     print(f"{board[6]} | {board[7]} | {board[8]}")
+
+    ### returning
+    return
 
 def player_move(board, player):
     while True:
