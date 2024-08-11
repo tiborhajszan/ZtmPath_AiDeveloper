@@ -52,19 +52,6 @@ def player_move(board=list(), player=str()) -> None:
     ### returning
     return
 
-
-def player_move(board, player):
-    while True:
-        try:
-            move = int(input(f"Player {player}, enter your move (1-9): ")) - 1
-            if move >= 0 and move < 9 and board[move] == ' ':
-                board[move] = player
-                break
-            else:
-                print("Invalid move. Try again.")
-        except ValueError:
-            print("Please enter a number between 1 and 9.")
-
 def check_win(board, player):
     win_conditions = [
         [0, 1, 2], [3, 4, 5], [6, 7, 8],  # rows
