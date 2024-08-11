@@ -2,7 +2,7 @@
 ### Section 5: Building Tic-Tac-Toe Game
 ### Game code, docstrings, and comments were all created by ChatGPT.
 
-### function displaying the current board ------------------------------------------------------------------------------
+### function displaying current board ----------------------------------------------------------------------------------
 def display_board(board=list()) -> None:
     """
     Displays the current state of the Tic-Tac-Toe board.
@@ -11,7 +11,7 @@ def display_board(board=list()) -> None:
         board (list[str]): List of 9 elements representing the current board. Elements are 'X' | 'O' | ' '.
     """
 
-    ### function main logic
+    ### printing current board
     print(f"\n{board[0]} | {board[1]} | {board[2]}")
     print("--+---+--")
     print(f"{board[3]} | {board[4]} | {board[5]}")
@@ -20,6 +20,38 @@ def display_board(board=list()) -> None:
 
     ### returning
     return
+
+### function executing move of human player ----------------------------------------------------------------------------
+def player_move(board=list(), player=str()) -> None:
+    """
+    Prompts the player to input a move on the Tic-Tac-Toe board and updates the board accordingly.
+    Keeps prompting the player for input until a valid move is made.
+    
+    Args:
+        board (list[str]): List of 9 elements representing the current board.
+        player (str): Current player's mark ('X' or 'O').
+    """
+
+    ### looping until valid move is made
+    while True:
+
+        ## trying to make a move
+        try:
+            move = int(input(f"Player {player}, enter your move (1-9): ")) # obtaining player move
+            move -= 1 # converting move to index
+            if 0 <= move and move < 9 and board[move] == ' ': # move is valid
+                board[move] = player # placing player mark on board
+                break # exiting loop after valid move
+            else: # move is invalid
+                print("Invalid move. Try again.") # displaying error message
+        
+        ## handling non-integer input
+        except ValueError:
+            print("Please enter an integer between 1 and 9.") # displaying error message
+    
+    ### returning
+    return
+
 
 def player_move(board, player):
     while True:
