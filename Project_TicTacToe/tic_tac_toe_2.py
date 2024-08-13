@@ -8,7 +8,7 @@ def display_board(board=list()) -> None:
     Displays the current state of the Tic-Tac-Toe board.
     
     Args:
-        board (list[str]): List of 9 elements representing the current board. Elements are 'X' | 'O' | ' '.
+        board (list[str]): list of 9 elements (X | O | ' ') representing the current board
     """
 
     ### printing current board
@@ -28,8 +28,8 @@ def player_move(board=list(), player=str()) -> None:
     Keeps prompting the player for input until a valid move is made.
     
     Args:
-        board (list[str]): List of 9 elements representing the current board.
-        player (str): Current player's mark ('X' or 'O').
+        board (list[str]): list of 9 elements (X | O | ' ') representing the current board
+        player (str): current player's mark (X | O).
     """
 
     ### looping until valid move is made
@@ -52,6 +52,7 @@ def player_move(board=list(), player=str()) -> None:
     ### returning
     return
 
+### function
 def check_win(board, player):
     win_conditions = [
         [0, 1, 2], [3, 4, 5], [6, 7, 8],  # rows
@@ -65,6 +66,51 @@ def check_win(board, player):
 
 def check_draw(board):
     return ' ' not in board
+
+### function for AI player ---------------------------------------------------------------------------------------------
+def minimax(board=list(), is_maximizing=bool(), ai_player=str(), human_player=str()):
+    """
+    Finds the best possible move for the AI player using the Minimax algorithm.
+    Recursively simulates the game to determine the best outcome for the AI player.
+    Maximizes the score of the AI player and minimizes the score of the human player.
+    
+    Args:
+        board (list[str]): list of 9 elements (X|O|' ') representing the current board
+        is_maximizing (bool): True when AI player moves, False when human player moves
+        ai_player (str): AI player's mark (X|O)
+        human_player (str): human player's mark (X|O)
+        
+    Returns:
+        int: score of best possible move (1 = AI win, -1 = human win, 0 = draw).
+    """
+    
+    ### game over (win/loss/draw) > returning corresponding score
+    if check_win(board, ai_player):
+        return 1  # AI wins
+    elif check_win(board, human_player):
+        return -1  # Human wins
+    elif check_draw(board):
+        return 0  # Draw
+    
+    if is_maximizing:
+        best_score = -float('inf')  # Initialize the best score for maximizing (AI) to negative infinity
+        for i in range(9):  # Iterate over all possible moves
+            if board[i] == ' ':
+                board[i] = ai_player  # Simulate AI move
+                score = minimax(board, False, ai_player, human_player)  # Recursively calculate the score
+                board[i] = ' '  # Undo the move
+                best_score = max(score, best_score)  # Choose the move with the maximum score
+        return best_score  # Return the best score found for the AI
+    else:
+        best_score = float('inf')  # Initialize the best score for minimizing (human) to positive infinity
+        for i in range(9):  # Iterate over all possible moves
+            if board[i] == ' ':
+                board[i] = human_player  # Simulate human move
+                score = minimax(board, True, ai_player, human_player)  # Recursively calculate the score
+                board[i] = ' '  # Undo the move
+                best_score = min(score, best_score)  # Choose the move with the minimum score
+        return best_score  # Return the best score found for the human player
+
 
 def minimax(board, is_maximizing, ai_player, human_player):
     if check_win(board, ai_player):
