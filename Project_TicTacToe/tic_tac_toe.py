@@ -1,3 +1,28 @@
+### Course: Zero to Mastery Academy | Prompt Engineering
+### Section 5: Building Tic-Tac-Toe Game
+### All code was created via prompting ChatGPT.
+
+### imports
+import sys
+from typing import List
+
+### function initializing game board -----------------------------------------------------------------------------------
+def initialize_board() -> List[List[str]]:
+    """
+    Initializes an empty 3x3 Tic-Tac-Toe board.
+
+    Returns:
+        list[list[str]]: 3x3 matrix representing the game board, initialized with empty strings
+    """
+
+    ### creating and returning a 3x3 matrix filled with empty strings to represent the game board
+    board = [['' for _ in range(3)] for _ in range(3)]
+    return board
+
+print(initialize_board())
+sys.exit()
+
+
 def display_board(board):
     print(f"{board[0]} | {board[1]} | {board[2]}")
     print("--+---+--")
