@@ -1,23 +1,52 @@
 ### Course: Zero to Mastery Academy | Prompt Engineering
-### Section 5: Building Tic-Tac-Toe Game
-### All code was created via prompting ChatGPT.
+### Section 5: Challenge - Build Your Second Game (Tic Tac Toe with AI opponent)
 
 ### imports
 import sys
-from typing import List
+from typing import List, Tuple
 
 ### function initializing game board -----------------------------------------------------------------------------------
 def initialize_board() -> List[List[str]]:
     """
-    Initializes an empty 3x3 Tic-Tac-Toe board.
+    Initializes an empty 3 x 3 Tic-Tac-Toe board.
 
     Returns:
-        list[list[str]]: 3x3 matrix representing the game board, initialized with empty strings
+        list[list[str]]: 3 x 3 matrix representing the game board, initialized with empty strings
     """
 
-    ### creating and returning a 3x3 matrix filled with empty strings to represent the game board
+    ### creating and returning a 3 x 3 matrix filled with empty strings
     board = [['' for _ in range(3)] for _ in range(3)]
     return board
+
+### function updating game board ---------------------------------------------------------------------------------------
+def update_board(board:List[List[str]], position:Tuple[int,int], player:str='X') -> bool:
+    """
+    Updates the game board with the player's move.
+    
+    Args:
+        board: list[list[str]], current state of game board, represented by 3 x 3 list of strings
+        position: tuple[int,int], row and column indices (0-based) of player move
+        player: str, player mark ('X' | 'O', default = 'X')
+    
+    Returns:
+        bool: True = successful move, False = invalid move
+    """
+    
+    ### unpacking position tuple into row and column
+    row, col = position
+
+    ### checking whether position is within board
+    if 0 <= row < 3 and 0 <= col < 3: # valid position
+        pass
+    else: # invalid position
+        return False
+    
+    ### checking whether position is available (not already marked with 'X' or 'O')
+    if board[row][col] == '': # available position
+        board[row][col] = player  # placing player mark on board
+        return True
+    else: # occupied position
+        return False
 
 print(initialize_board())
 sys.exit()
