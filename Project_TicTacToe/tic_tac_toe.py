@@ -1,5 +1,5 @@
 ### Course: Zero to Mastery Academy | Prompt Engineering
-### Section 5: Challenge - Build Your Second Game (Tic Tac Toe with AI opponent)
+### Section 5: Challenge - Build Your Second Game (Tic-Tac-Toe with AI opponent)
 
 ### imports
 import sys
@@ -8,32 +8,31 @@ from typing import List, Tuple
 ### function initializing game board -----------------------------------------------------------------------------------
 def initialize_board() -> List[List[str]]:
     """
-    Initializes an empty 3 x 3 Tic-Tac-Toe board.
+    Initializes an empty 3x3 Tic-Tac-Toe board.
 
     Returns:
-        list[list[str]]: 3 x 3 matrix representing the game board, initialized with empty strings
+        list[list[str]]: empty game board, 3x3 list of strings, elements " "
     """
 
-    ### creating and returning a 3 x 3 matrix filled with empty strings
-    board = [['' for _ in range(3)] for _ in range(3)]
-    return board
+    ### creating and returning 3x3 matrix filled with spaces
+    return [[" " for _ in range(3)] for _ in range(3)]
 
 ### function updating game board ---------------------------------------------------------------------------------------
 def update_board(board:List[List[str]], position:Tuple[int,int], player:str='X') -> bool:
     """
-    Updates the game board with the player's move.
+    Updates the Tic-Tac-Toe board with the player's move.
     
     Args:
-        board: list[list[str]], current state of game board, represented by 3 x 3 list of strings
-        position: tuple[int,int], row and column indices (0-based) of player move
-        player: str, player mark ('X' | 'O', default = 'X')
+        board: list[list[str]], current state of game board, 3x3 list of strings, elements "X" | "O" | ""
+        position: tuple[int,int], row and column indices of player move
+        player: str, player mark ("X" | "O", default = "X")
     
     Returns:
         bool: True = successful move, False = invalid move
     """
     
     ### unpacking position tuple into row and column
-    row, col = position
+    row,col = position
 
     ### checking whether position is within board
     if 0 <= row < 3 and 0 <= col < 3: # valid position
@@ -42,13 +41,44 @@ def update_board(board:List[List[str]], position:Tuple[int,int], player:str='X')
         return False
     
     ### checking whether position is available (not already marked with 'X' or 'O')
-    if board[row][col] == '': # available position
-        board[row][col] = player  # placing player mark on board
+    if board[row][col] == " ": # available position
+        board[row][col] = player # placing player mark on board
         return True
     else: # occupied position
         return False
 
-print(initialize_board())
+### function displaying game board -------------------------------------------------------------------------------------
+def display_board(aBoard=list()) -> None:
+    """
+    Displays the current state of the Tic-Tac-Toe board.
+    
+    Args:
+        aBoard: list[list[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
+    
+    Returns:
+        None: prints game board to console
+    """
+
+    ### asserting argument types and values
+    if type(aBoard) is not list or len(aBoard) != 3 \
+    or any(type(row) is not list or len(row) != 3 for row in aBoard) \
+    or any(any(item not in ["X","O"," "] for item in row) for row in aBoard):
+        print("\nInvalid game board: Restarting game...")
+        aBoard = [[" " for _ in range(3)] for _ in range(3)]
+
+    ### function main logic
+    print() # printing separator line to console
+    for index,row in enumerate(aBoard): # looping through each row of board
+        print(f" {row[0]} | {row[1]} | {row[2]} ") # printing row to console
+        if index < 2: print("---|---|---") # printing row divider to console
+    
+    ### returning
+    return
+
+board = initialize_board()
+display_board(aBoard=board)
+update_board(board=board, position=(1,1), player="X")
+display_board(aBoard=board)
 sys.exit()
 
 
