@@ -5,17 +5,57 @@
 import sys
 from typing import List, Tuple
 
-### function initializing game board -----------------------------------------------------------------------------------
+########################################################################################################################
+# Game Board Module                                                                                                    #
+########################################################################################################################
+
+### function for initializing game board -------------------------------------------------------------------------------
 def initialize_board() -> List[List[str]]:
     """
     Initializes an empty 3x3 Tic-Tac-Toe board.
 
     Returns:
-        list[list[str]]: empty game board, 3x3 list of strings, elements " "
+    - List[List[str]]: empty game board, 3x3 list of strings, all elements " "
     """
 
-    ### creating and returning 3x3 matrix filled with spaces
+    ### creating and returning 3x3 list matrix filled with spaces
     return [[" " for _ in range(3)] for _ in range(3)]
+
+### function for verifying game board ----------------------------------------------------------------------------------
+def verify_board(aBoard=initialize_board()) -> bool:
+    """
+    Verifies the integrity of the Tic-Tac-Toe board by checking the following conditions:
+    1. The input "aBoard" must be a list of size 3.
+    2. Each element of "aBoard" must be a list of size 3.
+    3. Each element of the sublists must be one of "X", "O", or " " (space).
+
+    Args:
+    - aBoard: List[List[str]], game board to verify, 3x3 list of strings, elements "X"|"O"|" "
+
+    Returns:
+    - bool: True = valid board, False = invalid board
+    """
+    
+    ### aBoard is not list of size 3 > returning false
+    if not isinstance(aBoard, list) or len(aBoard) != 3: return False
+    
+    ### aBoard elements are not lists of size 3 > returning false
+    if not all(isinstance(row, list) and len(row) == 3 for row in aBoard): return False
+        
+    ### aBoard sublist elements are not "X"|"O"|" " > returning false
+    if not all(all(item in ["X","O"," "] for item in row) for row in aBoard): return False
+    
+    ### all checks passed > returning true
+    return True
+
+board = initialize_board()
+print(board)
+if verify_board(aBoard=board): print("oksi...")
+board[1][1] = 24
+print(board)
+if not verify_board(aBoard=board): print("uh-oh")
+sys.exit()
+
 
 ### function updating game board ---------------------------------------------------------------------------------------
 def update_board(board:List[List[str]], position:Tuple[int,int], player:str='X') -> bool:
@@ -75,19 +115,54 @@ def display_board(aBoard=list()) -> None:
     ### returning
     return
 
+########################################################################################################################
+# Player Input Module                                                                                                  #
+########################################################################################################################
+
+### function verifying player move -------------------------------------------------------------------------------------
+def is_valid_move(aBoard=list(), aPosition=-1) -> bool:
+    """
+    Checks if the player move is valid on the current Tic-Tac-Toe board.
+    
+    Args:
+        aBoard: list[list[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
+        position: int, player move position (0-8) corresponding to a flattened 3x3 game board
+
+    Returns:
+        bool: True = valid move, False = invalid move
+    
+    Raises:
+        ValueError: If the board is not a 3x3 matrix.
+        TypeError: If the position is not an integer.
+    """
+    # Validate the board structure
+    if not isinstance(board, list) or len(board) != 3 or not all(isinstance(row, list) and len(row) == 3 for row in board):
+        raise ValueError("Invalid board format: The board must be a 3x3 matrix of lists.")
+    
+    # Ensure the position is an integer
+    if not isinstance(position, int):
+        raise TypeError("Invalid type for position: Position must be an integer.")
+    
+    # Check if the position is within the valid range (0-8)
+    if position < 0 or position > 8:
+        return False
+    
+    # Map the position to board coordinates
+    row, col = divmod(position, 3)
+    
+    # Check if the selected cell is empty
+    if board[row][col] == '':
+        return True
+    return False
+
+
 board = initialize_board()
 display_board(aBoard=board)
 update_board(board=board, position=(1,1), player="X")
 display_board(aBoard=board)
 sys.exit()
 
-
-def display_board(board):
-    print(f"{board[0]} | {board[1]} | {board[2]}")
-    print("--+---+--")
-    print(f"{board[3]} | {board[4]} | {board[5]}")
-    print("--+---+--")
-    print(f"{board[6]} | {board[7]} | {board[8]}")
+########################################################################################################################
 
 def player_move(board, player):
     while True:
