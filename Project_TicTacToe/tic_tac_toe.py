@@ -48,19 +48,10 @@ def verify_board(aBoard=initialize_board()) -> bool:
     ### all checks passed > returning true
     return True
 
-board = initialize_board()
-print(board)
-if verify_board(aBoard=board): print("oksi...")
-board[1][1] = 24
-print(board)
-if not verify_board(aBoard=board): print("uh-oh")
-sys.exit()
-
-
-### function updating game board ---------------------------------------------------------------------------------------
-def update_board(board:List[List[str]], position:Tuple[int,int], player:str='X') -> bool:
+### function for updating game board -----------------------------------------------------------------------------------
+def update_board(aBoard=initialize_board(), aMove=(-1,-1), aMark="X") -> bool:
     """
-    Updates the Tic-Tac-Toe board with the player's move.
+    Updates the Tic-Tac-Toe board with the player move.
     
     Args:
         board: list[list[str]], current state of game board, 3x3 list of strings, elements "X" | "O" | ""
@@ -72,7 +63,7 @@ def update_board(board:List[List[str]], position:Tuple[int,int], player:str='X')
     """
     
     ### unpacking position tuple into row and column
-    row,col = position
+    row,col = aMove
 
     ### checking whether position is within board
     if 0 <= row < 3 and 0 <= col < 3: # valid position
@@ -81,8 +72,8 @@ def update_board(board:List[List[str]], position:Tuple[int,int], player:str='X')
         return False
     
     ### checking whether position is available (not already marked with 'X' or 'O')
-    if board[row][col] == " ": # available position
-        board[row][col] = player # placing player mark on board
+    if aBoard[row][col] == " ": # available position
+        aBoard[row][col] = aMark # placing player mark on board
         return True
     else: # occupied position
         return False
@@ -155,10 +146,35 @@ def is_valid_move(aBoard=list(), aPosition=-1) -> bool:
         return True
     return False
 
+### function for obtaining player move ---------------------------------------------------------------------------------
+def get_player_move(aBoard=list()) -> Tuple[int,int]:
+    """
+    Obtains, validates, and returns a move from the player.
+
+    Args:
+    - aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
+
+    Returns:
+    - Tuple[int,int]: row and column of player move
+    """
+    
+    ### invalid game board > returning invalid player move
+    if not verify_board(aBoard=aBoard): return -1,-1
+
+    ### looping until valid player move is entered
+    while True:
+        # trying: prompting for move > parsing input > validating and returning move
+        try:
+            player_move = input("Enter your move (row,col): ").strip()
+            row,column = map(lambda x: int(x)-1, player_move.split(","))
+            if 0 <= row < 3 and 0 <= column < 3 and aBoard[row][column] == " ": return row,column
+        # error: continuing loop
+        except:
+            pass
 
 board = initialize_board()
 display_board(aBoard=board)
-update_board(board=board, position=(1,1), player="X")
+update_board(aBoard=board, aMove=get_player_move(aBoard=board), aMark="O")
 display_board(aBoard=board)
 sys.exit()
 
