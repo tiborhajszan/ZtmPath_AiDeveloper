@@ -79,15 +79,6 @@ def verify_move(aBoard=list(), aMove=int()) -> bool:
     ### all checks passed > returning true
     return True
 
-board = initialize_board()
-board[1][0] = "O"
-#board.append([" ", " ", " "])
-print(board)
-if verify_move(aBoard=board, aMove=(1,1)): print("OK")
-else: print("Uh-Oh")
-sys.exit()
-
-
 ### function for updating game board -----------------------------------------------------------------------------------
 def update_board(aBoard=initialize_board(), aMove=(-1,-1), aMark="X") -> bool:
     """
@@ -118,33 +109,38 @@ def update_board(aBoard=initialize_board(), aMove=(-1,-1), aMark="X") -> bool:
     else: # occupied position
         return False
 
-### function displaying game board -------------------------------------------------------------------------------------
-def display_board(aBoard=list()) -> None:
+### function for displaying game board ---------------------------------------------------------------------------------
+def display_board(aBoard=list()) -> bool:
     """
-    Displays the current state of the Tic-Tac-Toe board.
+    Prints the current state of the Tic-Tac-Toe board to the console.
     
     Args:
-        aBoard: list[list[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
+        aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
     
     Returns:
-        None: prints game board to console
+        bool: True = printing successful, False = printing failed
     """
 
-    ### asserting argument types and values
-    if type(aBoard) is not list or len(aBoard) != 3 \
-    or any(type(row) is not list or len(row) != 3 for row in aBoard) \
-    or any(any(item not in ["X","O"," "] for item in row) for row in aBoard):
-        print("\nInvalid game board: Restarting game...")
-        aBoard = [[" " for _ in range(3)] for _ in range(3)]
+    ### invalid game board > returning false
+    if not verify_board(aBoard=aBoard): return False
 
-    ### function main logic
-    print() # printing separator line to console
-    for index,row in enumerate(aBoard): # looping through each row of board
-        print(f" {row[0]} | {row[1]} | {row[2]} ") # printing row to console
-        if index < 2: print("---|---|---") # printing row divider to console
+    ### printing column numbers
+    print("\n   | 1 | 2 | 3 ")
+
+    ### printing rows and dividers
+    for index,row in enumerate(aBoard):
+        print("---|---|---|---")
+        print(f" {index+1} | {row[0]} | {row[1]} | {row[2]} ")
     
-    ### returning
-    return
+    ### successful printing > returning true
+    return True
+
+board = initialize_board()
+board[1][2] = "X"
+# board.append([" ", " ", " "])
+if display_board(aBoard=board): print("OK")
+else: print("Uh-Oh")
+sys.exit()
 
 ########################################################################################################################
 # Player Input Module                                                                                                  #
