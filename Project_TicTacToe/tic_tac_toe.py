@@ -22,7 +22,7 @@ def initialize_board() -> List[List[str]]:
     return [[" " for _ in range(3)] for _ in range(3)]
 
 ### function for verifying game board ----------------------------------------------------------------------------------
-def verify_board(aBoard=initialize_board()) -> bool:
+def verify_board(aBoard=list()) -> bool:
     """
     Verifies the integrity of the Tic-Tac-Toe board by checking the following conditions:
     1. The input "aBoard" must be a list of size 3.
@@ -47,6 +47,46 @@ def verify_board(aBoard=initialize_board()) -> bool:
     
     ### all checks passed > returning true
     return True
+
+### function for verifying player move ---------------------------------------------------------------------------------
+def verify_move(aBoard=list(), aMove=int()) -> bool:
+    """
+    Checks if player move is valid on the current Tic-Tac-Toe board.
+    
+    Args:
+        aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
+        aMove: Tuple[int,int], row and column indexes of player move
+
+    Returns:
+        bool: True = valid move, False = invalid move
+    """
+
+    ### invalid game board > returning false
+    if not verify_board(aBoard=aBoard): return False
+    
+    ### aMove is not tuple of size 2 > returning false
+    if not isinstance(aMove, tuple) or len(aMove) != 2: return False
+    
+    ### aMove elements are not int or outside range 0-2 > returning false
+    if not all(isinstance(item, int) and 0 <= item < 3 for item in aMove): return False
+    
+    ### unpacking aMove tuple
+    row,column = aMove
+    
+    ### selected cell is not available > returnin false
+    if aBoard[row][column] != " ": return False
+
+    ### all checks passed > returning true
+    return True
+
+board = initialize_board()
+board[1][0] = "O"
+#board.append([" ", " ", " "])
+print(board)
+if verify_move(aBoard=board, aMove=(1,1)): print("OK")
+else: print("Uh-Oh")
+sys.exit()
+
 
 ### function for updating game board -----------------------------------------------------------------------------------
 def update_board(aBoard=initialize_board(), aMove=(-1,-1), aMark="X") -> bool:
@@ -110,42 +150,6 @@ def display_board(aBoard=list()) -> None:
 # Player Input Module                                                                                                  #
 ########################################################################################################################
 
-### function verifying player move -------------------------------------------------------------------------------------
-def is_valid_move(aBoard=list(), aPosition=-1) -> bool:
-    """
-    Checks if the player move is valid on the current Tic-Tac-Toe board.
-    
-    Args:
-        aBoard: list[list[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
-        position: int, player move position (0-8) corresponding to a flattened 3x3 game board
-
-    Returns:
-        bool: True = valid move, False = invalid move
-    
-    Raises:
-        ValueError: If the board is not a 3x3 matrix.
-        TypeError: If the position is not an integer.
-    """
-    # Validate the board structure
-    if not isinstance(board, list) or len(board) != 3 or not all(isinstance(row, list) and len(row) == 3 for row in board):
-        raise ValueError("Invalid board format: The board must be a 3x3 matrix of lists.")
-    
-    # Ensure the position is an integer
-    if not isinstance(position, int):
-        raise TypeError("Invalid type for position: Position must be an integer.")
-    
-    # Check if the position is within the valid range (0-8)
-    if position < 0 or position > 8:
-        return False
-    
-    # Map the position to board coordinates
-    row, col = divmod(position, 3)
-    
-    # Check if the selected cell is empty
-    if board[row][col] == '':
-        return True
-    return False
-
 ### function for obtaining player move ---------------------------------------------------------------------------------
 def get_player_move(aBoard=list()) -> Tuple[int,int]:
     """
@@ -171,12 +175,6 @@ def get_player_move(aBoard=list()) -> Tuple[int,int]:
         # error: continuing loop
         except:
             pass
-
-board = initialize_board()
-display_board(aBoard=board)
-update_board(aBoard=board, aMove=get_player_move(aBoard=board), aMark="O")
-display_board(aBoard=board)
-sys.exit()
 
 ########################################################################################################################
 
