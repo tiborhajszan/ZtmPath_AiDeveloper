@@ -54,11 +54,11 @@ def verify_move(aBoard=list(), aMove=int()) -> bool:
     Checks if player move is valid on the current Tic-Tac-Toe board.
     
     Args:
-        aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
-        aMove: Tuple[int,int], row and column indexes of player move
+    - aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
+    - aMove: Tuple[int,int], row and column indexes of player move
 
     Returns:
-        bool: True = valid move, False = invalid move
+    - bool: True = valid move, False = invalid move
     """
 
     ### invalid game board > returning false
@@ -115,10 +115,10 @@ def display_board(aBoard=list()) -> bool:
     Prints the current state of the Tic-Tac-Toe board to the console.
     
     Args:
-        aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
+    - aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
     
     Returns:
-        bool: True = printing successful, False = printing failed
+    - bool: True = printing successful, False = printing failed
     """
 
     ### invalid game board > returning false
@@ -135,11 +135,40 @@ def display_board(aBoard=list()) -> bool:
     ### successful printing > returning true
     return True
 
+########################################################################################################################
+# Game Logic Module                                                                                                    #
+########################################################################################################################
+
+### function for finding winner ----------------------------------------------------------------------------------------
+def check_winner(aBoard=list()) -> str:
+    """Checks the Tic-Tac-Toe board for a winner.
+
+    Args:
+    - aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
+
+    Returns:
+    - str: "X"|"O"|"" (no winner)
+    """
+
+    ### invalid game board > returning no winner
+    if not verify_board(aBoard=aBoard): return ""
+
+    ### defining win conditions
+    win_conditions: List[List[str]] = [aBoard[row] for row in range(3)] # rows
+    win_conditions.extend([list(column) for column in zip(*aBoard)]) # columns
+    win_conditions.append([aBoard[index][index] for index in range(3)]) # backslash diagonal
+    win_conditions.append([aBoard[index][2 - index] for index in range(3)]) # slash diagonal
+
+    ### checking for and returning winner
+    return next((line[0] for line in win_conditions if line[0] in ["X","O"] and line.count(line[0]) == 3), "")
+
 board = initialize_board()
-board[1][2] = "X"
+board[0][0] = "O"
+board[1][1] = "O"
+board[2][2] = "O"
+display_board(aBoard=board)
 # board.append([" ", " ", " "])
-if display_board(aBoard=board): print("OK")
-else: print("Uh-Oh")
+print([check_winner(aBoard=board)])
 sys.exit()
 
 ########################################################################################################################
@@ -171,6 +200,88 @@ def get_player_move(aBoard=list()) -> Tuple[int,int]:
         # error: continuing loop
         except:
             pass
+
+### get ai move function -----------------------------------------------------------------------------------------------
+from typing import List, Tuple
+
+def get_ai_move(aBoard: List[List[str]]) -> Tuple[int, int]:
+    """
+    Determines the AI's next move using the Minimax algorithm.
+    
+    This function first verifies the board's integrity using `verify_board()`.
+    Then, it computes the optimal move for the AI ("O") based on the current board state.
+    The AI will attempt to minimize the player's chances of winning while maximizing its own.
+    
+    Args:
+    - aBoard (List[List[str]]): The current state of the Tic-Tac-Toe board.
+    
+    Returns:
+    - Tuple[int, int]: The (row, col) of the optimal move for the AI.
+    """
+    
+    def minimax(board: List[List[str]], is_maximizing: bool) -> int:
+        """
+        Implements the Minimax algorithm to evaluate board states.
+        
+        Args:
+        - board (List[List[str]]): The current game board.
+        - is_maximizing (bool): Whether the current turn is maximizing or minimizing (AI or player).
+        
+        Returns:
+        - int: The score for the given board state.
+        """
+        winner = check_winner(board)
+        if winner == "O":  # AI wins
+            return 1
+        elif winner == "X":  # Player wins
+            return -1
+        elif is_draw(board):  # Draw
+            return 0
+        
+        if is_maximizing:
+            best_score = -float('inf')
+            for row, col in available_moves(board):
+                board[row][col] = "O"
+                score = minimax(board, False)
+                board[row][col] = " "  # Undo move
+                best_score = max(score, best_score)
+            return best_score
+        else:
+            best_score = float('inf')
+            for row, col in available_moves(board):
+                board[row][col] = "X"
+                score = minimax(board, True)
+                board[row][col] = " "  # Undo move
+                best_score = min(score, best_score)
+            return best_score
+
+    def available_moves(board: List[List[str]]) -> List[Tuple[int, int]]:
+        """Returns a list of available moves as (row, col) tuples."""
+        return [(i, j) for i in range(3) for j in range(3) if board[i][j] == " "]
+
+    def is_draw(board: List[List[str]]) -> bool:
+        """Returns True if the board is full (no available moves) and there's no winner."""
+        return all(cell != " " for row in board for cell in row)
+
+    # Ensure the board is valid
+    if not verify_board(aBoard):
+        raise ValueError("Invalid board provided")
+
+    # Initialize best variables
+    best_move = (-1, -1)
+    best_score = -float('inf')
+    
+    # Loop through available moves and apply Minimax
+    for row, col in available_moves(aBoard):
+        aBoard[row][col] = "O"
+        score = minimax(aBoard, False)
+        aBoard[row][col] = " "  # Undo move
+        if score > best_score:
+            best_score = score
+            best_move = (row, col)
+    
+    return best_move
+
 
 ########################################################################################################################
 
