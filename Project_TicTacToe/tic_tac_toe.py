@@ -162,13 +162,32 @@ def check_winner(aBoard=list()) -> str:
     ### checking for and returning winner
     return next((line[0] for line in win_conditions if line[0] in ["X","O"] and line.count(line[0]) == 3), "")
 
-board = initialize_board()
-board[0][0] = "O"
-board[1][1] = "O"
-board[2][2] = "O"
-display_board(aBoard=board)
+### function for determining draw --------------------------------------------------------------------------------------
+def is_draw(aBoard=list()) -> bool:
+    """
+    Determines if the current Tic-Tac-Toe game is a draw.
+    The game is a draw if the board is full and no winner exists.
+
+    Args:
+    - aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
+
+    Returns:
+    - bool: True = full board, False otherwise
+    """
+
+    ### invalid game board > returning false
+    if not verify_board(aBoard=aBoard): return False
+    
+    ### full board > returning true | cells available > returning false
+    return all(cell != " " for row in aBoard for cell in row)
+
+board = [["H" for _ in range(3)] for _ in range(3)]
+# board[0][0] = "O"
+# board[1][1] = "O"
+# board[2][2] = "O"
 # board.append([" ", " ", " "])
-print([check_winner(aBoard=board)])
+display_board(aBoard=board)
+print([is_draw(aBoard=board)])
 sys.exit()
 
 ########################################################################################################################
