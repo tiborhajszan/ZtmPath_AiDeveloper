@@ -2,8 +2,55 @@
 ### Section 5: Challenge - Build Your Second Game (Tic-Tac-Toe with AI opponent)
 
 ### imports
-import sys
+import os, sys
 from typing import List, Tuple
+
+########################################################################################################################
+# Game Utility Module                                                                                                  #
+########################################################################################################################
+
+### function for ending | restarting game ------------------------------------------------------------------------------
+def restart_game(aMessage=str()) -> None:
+    """
+    Handles errors, and restarts or ends the Tic-Tac-Toe game.
+
+    Args:
+    - aMessage: str, optional error message to display
+    """
+
+    #>>> verifying and printing error message
+    # aMessage not string > aMessage empty string
+    if not isinstance(aMessage, str): aMessage = str()
+    # aMessage valid string > adding separator lines
+    if 0 < len(aMessage): aMessage = "\n" + aMessage + "\n"
+    # printing to console
+    print(aMessage)
+
+    #>>> input loop
+    # continuous looping until valid choice is entered
+    while True:
+        # prompting user and parsing input
+        user_choice = input("Enter 'r' to restart game or 'q' to quit: ").strip().lower()
+        # valid user choice > breaking loop
+        if user_choice in ["r","q"]: break
+        # invalid user choice > deleting prompt, continuing loop
+        print("\033[1A", end="\x1b[2K")
+
+    #>>> restarting game
+    # user choice is restart
+    if user_choice == 'r':
+        # printing confirmation
+        print("\nRestarting Game...")
+        # restarting script
+        os.system("cls")
+        os.execl(sys.executable, "python", __file__)
+        sys.exit()
+
+    #>>> quitting game
+    # terminating script, printing confirmation
+    sys.exit("\nGame Over!")
+
+restart_game(aMessage="Error occurred...")
 
 ########################################################################################################################
 # Game Board Module                                                                                                    #
