@@ -174,7 +174,7 @@ def is_draw(aBoard=list()) -> bool:
     - aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
 
     Returns:
-    - bool: True = full board, False otherwise
+    - bool: True = full board, False = moves available
     """
 
     ### invalid game board > returning false
@@ -184,7 +184,7 @@ def is_draw(aBoard=list()) -> bool:
     return all(cell != " " for row in aBoard for cell in row)
 
 ########################################################################################################################
-# Player Input Module                                                                                                  #
+# Move Input Module                                                                                                    #
 ########################################################################################################################
 
 ### function for obtaining player move ---------------------------------------------------------------------------------
@@ -213,6 +213,52 @@ def get_player_move(aBoard=list()) -> Tuple[int,int]:
         except:
             pass
 
+### minimax algorithm --------------------------------------------------------------------------------------------------
+def minimax(aBoard=list(), aMaximizing=True) -> int:
+    """
+    Implements the Minimax Algorithm to determine the next AI move.
+    
+    Args:
+    - aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
+    - aMaximizing: bool, True = maximizing score, False = minimizing score
+    
+    Returns:
+    - int: score for the given board state
+    """
+
+    ### invalid game board > error handling
+    if not verify_board(aBoard=aBoard): pass
+
+    ### invalid maximizing flag > error handling
+    if not isinstance(aMaximizing, bool): pass
+
+    ### terminal conditions > returning score
+    winner = check_winner(aBoard=aBoard) # looking for winner
+    if winner == "O": return 1 # AI wins
+    elif winner == "X": return -1 # player wins
+    elif is_draw(aBoard=aBoard): return 0 # draw
+    
+    ### maximizing score
+    if aMaximizing:
+        best_score = -float("inf") # starting from minus infinity
+        # looping through available moves
+        for row,column in [(i,j) for i in range(3) for j in range(3) if aBoard[i][j] == " "]:
+            aBoard[row][column] = "O" # pretending AI move
+            last_score = minimax(aBoard=aBoard, aMaximizing=False) # calling minimax for player move
+            aBoard[row][column] = " " # undoing AI move
+            best_score = max(last_score, best_score) # updating best score
+        return best_score # returning best score
+    
+    ### minimizing score
+    best_score = float("inf") # starting from plus infinity
+    # looping through available moves
+    for row,column in [(i,j) for i in range(3) for j in range(3) if aBoard[i][j] == " "]:
+        aBoard[row][column] = "X" # pretending player move
+        last_score = minimax(aBoard=aBoard, aMaximizing=True) # calling minimax for AI move
+        aBoard[row][column] = " " # undoing player move
+        best_score = min(last_score, best_score) # updating best score
+    return best_score # returning best score
+
 ### get ai move function -----------------------------------------------------------------------------------------------
 from typing import List, Tuple
 
@@ -230,46 +276,10 @@ def get_ai_move(aBoard: List[List[str]]) -> Tuple[int, int]:
     Returns:
     - Tuple[int, int]: The (row, col) of the optimal move for the AI.
     """
-    
-    def minimax(board: List[List[str]], is_maximizing: bool) -> int:
-        """
-        Implements the Minimax algorithm to evaluate board states.
-        
-        Args:
-        - board (List[List[str]]): The current game board.
-        - is_maximizing (bool): Whether the current turn is maximizing or minimizing (AI or player).
-        
-        Returns:
-        - int: The score for the given board state.
-        """
-        winner = check_winner(board)
-        if winner == "O":  # AI wins
-            return 1
-        elif winner == "X":  # Player wins
-            return -1
-        elif is_draw(board):  # Draw
-            return 0
-        
-        if is_maximizing:
-            best_score = -float('inf')
-            for row, col in available_moves(board):
-                board[row][col] = "O"
-                score = minimax(board, False)
-                board[row][col] = " "  # Undo move
-                best_score = max(score, best_score)
-            return best_score
-        else:
-            best_score = float('inf')
-            for row, col in available_moves(board):
-                board[row][col] = "X"
-                score = minimax(board, True)
-                board[row][col] = " "  # Undo move
-                best_score = min(score, best_score)
-            return best_score
 
     def available_moves(board: List[List[str]]) -> List[Tuple[int, int]]:
         """Returns a list of available moves as (row, col) tuples."""
-        return [(i, j) for i in range(3) for j in range(3) if board[i][j] == " "]
+        return 
 
     # Ensure the board is valid
     if not verify_board(aBoard):
