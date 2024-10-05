@@ -24,32 +24,28 @@ class GameBoard:
         ### creating 3x3 list of strings filled with spaces
         self._board: List[List[str]] = [[" " for _ in range(3)] for _ in range(3)]
 
-### function for verifying game board ----------------------------------------------------------------------------------
-def verify_board(aBoard=list()) -> bool:
-    """
-    Verifies the integrity of the Tic-Tac-Toe board by checking the following conditions:
-    1. The input "aBoard" must be a list of size 3.
-    2. Each element of "aBoard" must be a list of size 3.
-    3. Each element of the sublists must be one of "X", "O", or " " (space).
+    ### method for verifying game board ################################################################################
+    def _verify(self) -> bool:
+        """
+        Verifies the integrity of the Tic-Tac-Toe game board by checking the following conditions:
+        1. _board must be a list of size 3.
+        2. Each element of _board must be a list of size 3.
+        3. Each element of the sublists must be one of "X", "O", or " " (space).
 
-    Args:
-    - aBoard: List[List[str]], game board to verify, 3x3 list of strings, elements "X"|"O"|" "
-
-    Returns:
-    - bool: True = valid board, False = invalid board
-    """
-    
-    ### aBoard is not list of size 3 > returning false
-    if not isinstance(aBoard, list) or len(aBoard) != 3: return False
-    
-    ### aBoard elements are not lists of size 3 > returning false
-    if not all(isinstance(row, list) and len(row) == 3 for row in aBoard): return False
+        Returns:
+        - bool: True = valid board, False = invalid board
+        """
         
-    ### aBoard sublist elements are not "X"|"O"|" " > returning false
-    if not all(all(item in ["X","O"," "] for item in row) for row in aBoard): return False
-    
-    ### all checks passed > returning true
-    return True
+        ### method main logic ------------------------------------------------------------------------------------------
+
+        # _board is not list of size 3 > returning false
+        if not isinstance(self._board, list) or len(self._board) != 3: return False
+        # _board elements are not lists of size 3 > returning false
+        if not all(isinstance(row, list) and len(row) == 3 for row in self._board): return False
+        # _board sublist elements are not "X"|"O"|" " > returning false
+        if not all(item in ["X","O"," "] for row in self._board for item in row): return False
+        # all checks passed > returning true
+        return True
 
 ### function for verifying player move ---------------------------------------------------------------------------------
 def verify_move(aBoard=list(), aMove=int()) -> bool:
