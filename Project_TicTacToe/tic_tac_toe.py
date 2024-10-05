@@ -6,67 +6,23 @@ import os, sys
 from typing import List, Tuple
 
 ########################################################################################################################
-# Game Utility Module                                                                                                  #
+# Game Board Class                                                                                                     #
 ########################################################################################################################
 
-### function for ending | restarting game ------------------------------------------------------------------------------
-def restart_game(aMessage=str()) -> None:
+class GameBoard:
     """
-    Handles errors, and restarts or ends the Tic-Tac-Toe game.
-
-    Args:
-    - aMessage: str, optional error message to display
+    Represents the Tic-Tac-Toe game board.
+    
+    Attributes:
+    - _board : List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
     """
+    
+    ### constructor method #############################################################################################
+    def __init__(self) -> None:
+        """Initializes an empty 3x3 Tic-Tac-Toe game board."""
 
-    #>>> verifying and printing error message
-    # aMessage not string > aMessage empty string
-    if not isinstance(aMessage, str): aMessage = str()
-    # aMessage valid string > adding separator lines
-    if 0 < len(aMessage): aMessage = "\n" + aMessage + "\n"
-    # printing to console
-    print(aMessage)
-
-    #>>> input loop
-    # continuous looping until valid choice is entered
-    while True:
-        # prompting user and parsing input
-        user_choice = input("Enter 'r' to restart game or 'q' to quit: ").strip().lower()
-        # valid user choice > breaking loop
-        if user_choice in ["r","q"]: break
-        # invalid user choice > deleting prompt, continuing loop
-        print("\033[1A", end="\x1b[2K")
-
-    #>>> restarting game
-    # user choice is restart
-    if user_choice == 'r':
-        # printing confirmation
-        print("\nRestarting Game...")
-        # restarting script
-        os.system("cls")
-        os.execl(sys.executable, "python", __file__)
-        sys.exit()
-
-    #>>> quitting game
-    # terminating script, printing confirmation
-    sys.exit("\nGame Over!")
-
-restart_game(aMessage="Error occurred...")
-
-########################################################################################################################
-# Game Board Module                                                                                                    #
-########################################################################################################################
-
-### function for initializing game board -------------------------------------------------------------------------------
-def initialize_board() -> List[List[str]]:
-    """
-    Initializes an empty 3x3 Tic-Tac-Toe board.
-
-    Returns:
-    - List[List[str]]: empty game board, 3x3 list of strings, all elements " "
-    """
-
-    ### creating and returning 3x3 list matrix filled with spaces
-    return [[" " for _ in range(3)] for _ in range(3)]
+        ### creating 3x3 list of strings filled with spaces
+        self._board: List[List[str]] = [[" " for _ in range(3)] for _ in range(3)]
 
 ### function for verifying game board ----------------------------------------------------------------------------------
 def verify_board(aBoard=list()) -> bool:
@@ -346,6 +302,52 @@ def get_ai_move(aBoard: List[List[str]]) -> Tuple[int, int]:
             best_move = (row, col)
     
     return best_move
+
+########################################################################################################################
+# Game Utility Module                                                                                                  #
+########################################################################################################################
+
+### function for ending | restarting game ------------------------------------------------------------------------------
+def restart_game(aMessage=str()) -> None:
+    """
+    Handles errors, and restarts or ends the Tic-Tac-Toe game.
+
+    Args:
+    - aMessage: str, optional error message to display
+    """
+
+    #>>> verifying and printing error message
+    # aMessage not string > aMessage empty string
+    if not isinstance(aMessage, str): aMessage = str()
+    # aMessage valid string > adding separator lines
+    if 0 < len(aMessage): aMessage = "\n" + aMessage + "\n"
+    # printing to console
+    print(aMessage)
+
+    #>>> input loop
+    # continuous looping until valid choice is entered
+    while True:
+        # prompting user and parsing input
+        user_choice = input("Enter 'r' to restart game or 'q' to quit: ").strip().lower()
+        # valid user choice > breaking loop
+        if user_choice in ["r","q"]: break
+        # invalid user choice > deleting prompt, continuing loop
+        print("\033[1A", end="\x1b[2K")
+
+    #>>> restarting game
+    # user choice is restart
+    if user_choice == 'r':
+        # printing confirmation
+        print("\nRestarting Game...")
+        # restarting script
+        os.system("cls")
+        os.execl(sys.executable, "python", __file__)
+        sys.exit()
+
+    #>>> quitting game
+    # terminating script, printing confirmation
+    sys.exit("\nGame Over!")
+
 
 
 ########################################################################################################################
