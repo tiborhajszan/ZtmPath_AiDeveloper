@@ -36,7 +36,7 @@ class GameBoard:
         3. Each element of the sublists must be one of "X", "O", or " " (space).
 
         Returns:
-        - bool: True = valid game board, False = invalid game board
+        - bool: True = valid game board | False = invalid game board
         """
         
         ### method main logic ------------------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ class GameBoard:
         Prints the current Tic-Tac-Toe game board to the console.
         
         Returns:
-        - bool: True = printing successful, False = invalid game board
+        - bool: True = printing successful | False = invalid game board
         """
 
         ### verifying game board ---------------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ class GameBoard:
         - aMark: str, player mark "X"|"O"
         
         Returns:
-        - int: -1 = invalid input, 0 = update failed, 1 = update successful
+        - int: 1 = update successful | 0 = update failed | -1 = invalid input
         """
 
         ### verifying inputs -------------------------------------------------------------------------------------------
@@ -106,44 +106,36 @@ class GameBoard:
         self._board[aRow][aColumn] = aMark
         # update successful > returning 1
         return 1
+    
+    ### method for checking terminal conditions ########################################################################
+    def check(self) -> str:
+        """Checks the Tic-Tac-Toe game board for a winner or draw.
 
+        Returns:
+        - str: "X" = player wins | "O" = AI wins | "=" = draw | "" = no terminal condition | "@" = invalid game board
+        """
 
-board = GameBoard()
-error_flag = board.display()
-print("\n", error_flag, "\n")
-error_flag = board.update(aRow=0, aColumn=2, aMark="O")
-print("\n", error_flag, "\n")
-error_flag = board.display()
-print("\n", error_flag, "\n")
-sys.exit()
+        ### verifying game board ---------------------------------------------------------------------------------------
 
+        # invalid game board > returning "@"
+        if not self._verify(): return "@"
 
-########################################################################################################################
-# Game Logic Module                                                                                                    #
-########################################################################################################################
+        ### method main logic ------------------------------------------------------------------------------------------
 
-### function for finding winner ----------------------------------------------------------------------------------------
-def check_winner(aBoard=list()) -> str:
-    """Checks the Tic-Tac-Toe board for a winner.
+        ### defining win conditions
+        win_conditions: List[List[str]] = [self._board[row] for row in range(3)] # rows
+        win_conditions.extend([list(column) for column in zip(*self._board)]) # columns
+        win_conditions.append([self._board[index][index] for index in range(3)]) # backslash diagonal
+        win_conditions.append([self._board[index][2 - index] for index in range(3)]) # slash diagonal
 
-    Args:
-    - aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
-
-    Returns:
-    - str: "X"|"O"|"" (no winner)
-    """
-
-    ### invalid game board > returning no winner
-    if not verify_board(aBoard=aBoard): return ""
-
-    ### defining win conditions
-    win_conditions: List[List[str]] = [aBoard[row] for row in range(3)] # rows
-    win_conditions.extend([list(column) for column in zip(*aBoard)]) # columns
-    win_conditions.append([aBoard[index][index] for index in range(3)]) # backslash diagonal
-    win_conditions.append([aBoard[index][2 - index] for index in range(3)]) # slash diagonal
-
-    ### checking for and returning winner
-    return next((line[0] for line in win_conditions if line[0] in ["X","O"] and line.count(line[0]) == 3), "")
+        ### checking for terminal conditions
+        # player wins > returning "X"
+        if any(line == ["X"] * 3 for line in win_conditions): return "X"
+        # AI wins > returning "O"
+        if any(line == ["O"] * 3 for line in win_conditions): return "O"
+        # draw > returning "="
+        if all(item in ["X","O"] for row in self._board for item in row): return "="
+        # no terminal condition > returning ""
 
 ### function for determining draw --------------------------------------------------------------------------------------
 def is_draw(aBoard=list()) -> bool:
@@ -163,6 +155,18 @@ def is_draw(aBoard=list()) -> bool:
     
     ### full board > returning true | cells available > returning false
     return all(cell != " " for row in aBoard for cell in row)
+
+
+
+board = GameBoard()
+error_flag = board.display()
+print("\n", error_flag, "\n")
+error_flag = board.update(aRow=0, aColumn=2, aMark="O")
+print("\n", error_flag, "\n")
+error_flag = board.display()
+print("\n", error_flag, "\n")
+sys.exit()
+
 
 ########################################################################################################################
 # Move Input Module                                                                                                    #
