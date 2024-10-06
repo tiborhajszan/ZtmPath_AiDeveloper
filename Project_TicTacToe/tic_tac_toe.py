@@ -21,10 +21,13 @@ class GameBoard:
     def __init__(self) -> None:
         """Initializes an empty 3x3 Tic-Tac-Toe game board."""
 
-        ### creating 3x3 list of strings filled with spaces
-        self._board: List[List[str]] = [[" " for _ in range(3)] for _ in range(3)]
+        ### method main logic ------------------------------------------------------------------------------------------
 
-    ### method for verifying game board ################################################################################
+        # creating empty game board as 3x3 list of strings filled with spaces
+        self._board: List[List[str]] = [[" " for _ in range(3)] for _ in range(3)]
+        # self._board[0][1] = "O"
+
+    ### private method for verifying game board ########################################################################
     def _verify(self) -> bool:
         """
         Verifies the integrity of the Tic-Tac-Toe game board by checking the following conditions:
@@ -33,7 +36,7 @@ class GameBoard:
         3. Each element of the sublists must be one of "X", "O", or " " (space).
 
         Returns:
-        - bool: True = valid board, False = invalid board
+        - bool: True = valid game board, False = invalid game board
         """
         
         ### method main logic ------------------------------------------------------------------------------------------
@@ -53,13 +56,16 @@ class GameBoard:
         Prints the current Tic-Tac-Toe game board to the console.
         
         Returns:
-        - bool: True = printing successful, False = printing failed
+        - bool: True = printing successful, False = invalid game board
         """
 
-        ### method main logic ------------------------------------------------------------------------------------------
+        ### verifying game board ---------------------------------------------------------------------------------------
 
         # invalid game board > returning false
         if not self._verify(): return False
+
+        ### method main logic ------------------------------------------------------------------------------------------
+
         # printing column numbers
         print("\n   | 1 | 2 | 3 ")
         # looping through rows of game board
@@ -70,74 +76,45 @@ class GameBoard:
             print(f" {index+1} | {row[0]} | {row[1]} | {row[2]} ")
         # printing successful > returning true
         return True
+    
+    ### method for updating game board #################################################################################
+    def update(self, aRow=int(), aColumn=int(), aMark=str()) -> int:
+        """
+        Updates the Tic-Tac-Toe game board with the player move.
+        
+        Args:
+        - aRow: int, 0-2, row index of player move
+        - aColumn: int, 0-2, column index of player move
+        - aMark: str, player mark "X"|"O"
+        
+        Returns:
+        - int: -1 = invalid input, 0 = update failed, 1 = update successful
+        """
+
+        ### verifying inputs -------------------------------------------------------------------------------------------
+
+        # invalid input > returning -1
+        if not self._verify() or not isinstance(aRow, int) \
+        or not isinstance(aColumn, int) or aMark not in ["X","O"]:
+            return -1
+        # incorrect index | position occupied > returning 0
+        if aRow < 0 or 2 < aRow or aColumn < 0 or 2 < aColumn or self._board[aRow][aColumn] != " ": return 0
+
+        ### method main logic ------------------------------------------------------------------------------------------
+        
+        # placing player mark on game board
+        self._board[aRow][aColumn] = aMark
+        # update successful > returning 1
+        return 1
+
 
 board = GameBoard()
 error_flag = board.display()
 print("\n", error_flag, "\n")
-sys.exit()
-
-
-### function for verifying player move ---------------------------------------------------------------------------------
-def verify_move(aBoard=list(), aMove=int()) -> bool:
-    """
-    Checks if player move is valid on the current Tic-Tac-Toe board.
-    
-    Args:
-    - aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
-    - aMove: Tuple[int,int], row and column indexes of player move
-
-    Returns:
-    - bool: True = valid move, False = invalid move
-    """
-
-    ### invalid game board > returning false
-    if not verify_board(aBoard=aBoard): return False
-    
-    ### aMove is not tuple of size 2 > returning false
-    if not isinstance(aMove, tuple) or len(aMove) != 2: return False
-    
-    ### aMove elements are not int or outside range 0-2 > returning false
-    if not all(isinstance(item, int) and 0 <= item < 3 for item in aMove): return False
-    
-    ### unpacking aMove tuple
-    row,column = aMove
-    
-    ### selected cell is not available > returnin false
-    if aBoard[row][column] != " ": return False
-
-    ### all checks passed > returning true
-    return True
-
-### function for updating game board -----------------------------------------------------------------------------------
-def update_board(aBoard=list(), aMove=tuple(), aMark=str()) -> bool:
-    """
-    Updates the Tic-Tac-Toe board with the player move.
-    
-    Args:
-    - aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
-    - aMove: Tuple[int,int], row and column indices of player move
-    - aMark: str, player mark "X"|"O"
-    
-    Returns:
-    - bool: True = successful move, False = failed move
-    """
-
-    ### invalid game board and/or move > returning false
-    if not verify_move(aBoard=aBoard, aMove=aMove): return False
-
-    ### invalid mark > returning false
-    if aMark not in ["X","O"]: return False
-    
-    ### unpacking move tuple > placing mark on game board > returning true
-    row,column = aMove
-    aBoard[row][column] = aMark
-    return True
-
-
-board = initialize_board()
-display_board(aBoard=board)
-print(update_board(aBoard=board, aMove=(2,2), aMark="O"))
-display_board(aBoard=board)
+error_flag = board.update(aRow=0, aColumn=2, aMark="O")
+print("\n", error_flag, "\n")
+error_flag = board.display()
+print("\n", error_flag, "\n")
 sys.exit()
 
 
