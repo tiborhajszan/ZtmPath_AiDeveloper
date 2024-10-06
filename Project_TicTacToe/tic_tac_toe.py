@@ -46,6 +46,36 @@ class GameBoard:
         if not all(item in ["X","O"," "] for row in self._board for item in row): return False
         # all checks passed > returning true
         return True
+    
+    ### method for displaying game board ###############################################################################
+    def display(self) -> bool:
+        """
+        Prints the current Tic-Tac-Toe game board to the console.
+        
+        Returns:
+        - bool: True = printing successful, False = printing failed
+        """
+
+        ### method main logic ------------------------------------------------------------------------------------------
+
+        # invalid game board > returning false
+        if not self._verify(): return False
+        # printing column numbers
+        print("\n   | 1 | 2 | 3 ")
+        # looping through rows of game board
+        for index,row in enumerate(self._board):
+            # printing divider
+            print("---|---|---|---")
+            # printing row number and row
+            print(f" {index+1} | {row[0]} | {row[1]} | {row[2]} ")
+        # printing successful > returning true
+        return True
+
+board = GameBoard()
+error_flag = board.display()
+print("\n", error_flag, "\n")
+sys.exit()
+
 
 ### function for verifying player move ---------------------------------------------------------------------------------
 def verify_move(aBoard=list(), aMove=int()) -> bool:
@@ -103,31 +133,6 @@ def update_board(aBoard=list(), aMove=tuple(), aMark=str()) -> bool:
     aBoard[row][column] = aMark
     return True
 
-### function for displaying game board ---------------------------------------------------------------------------------
-def display_board(aBoard=list()) -> bool:
-    """
-    Prints the current state of the Tic-Tac-Toe board to the console.
-    
-    Args:
-    - aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
-    
-    Returns:
-    - bool: True = printing successful, False = printing failed
-    """
-
-    ### invalid game board > returning false
-    if not verify_board(aBoard=aBoard): return False
-
-    ### printing column numbers
-    print("\n   | 1 | 2 | 3 ")
-
-    ### printing rows and dividers
-    for index,row in enumerate(aBoard):
-        print("---|---|---|---")
-        print(f" {index+1} | {row[0]} | {row[1]} | {row[2]} ")
-    
-    ### successful printing > returning true
-    return True
 
 board = initialize_board()
 display_board(aBoard=board)
