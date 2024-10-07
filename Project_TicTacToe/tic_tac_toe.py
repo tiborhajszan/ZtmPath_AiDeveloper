@@ -25,7 +25,6 @@ class GameBoard:
 
         # creating empty game board as 3x3 list of strings filled with spaces
         self._board: List[List[str]] = [[" " for _ in range(3)] for _ in range(3)]
-        # self._board[0][1] = "O"
 
     ### private method for verifying game board ########################################################################
     def _verify(self) -> bool:
@@ -136,35 +135,15 @@ class GameBoard:
         # draw > returning "="
         if all(item in ["X","O"] for row in self._board for item in row): return "="
         # no terminal condition > returning ""
-
-### function for determining draw --------------------------------------------------------------------------------------
-def is_draw(aBoard=list()) -> bool:
-    """
-    Determines if the current Tic-Tac-Toe game is a draw.
-    The game is a draw if the board is full and no winner exists.
-
-    Args:
-    - aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
-
-    Returns:
-    - bool: True = full board, False = moves available
-    """
-
-    ### invalid game board > returning false
-    if not verify_board(aBoard=aBoard): return False
-    
-    ### full board > returning true | cells available > returning false
-    return all(cell != " " for row in aBoard for cell in row)
-
-
+        return ""
 
 board = GameBoard()
-error_flag = board.display()
-print("\n", error_flag, "\n")
-error_flag = board.update(aRow=0, aColumn=2, aMark="O")
-print("\n", error_flag, "\n")
-error_flag = board.display()
-print("\n", error_flag, "\n")
+board._board[0] = ["X","O","X"]
+board._board[1] = ["O","X","O"]
+board._board[2] = ["O","X"," "]
+board.display()
+error_code = board.check()
+print("\n", [error_code], "\n")
 sys.exit()
 
 
