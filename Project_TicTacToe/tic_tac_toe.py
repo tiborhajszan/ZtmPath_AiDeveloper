@@ -110,7 +110,7 @@ class GameBoard:
 
         # invalid input > returning -1
         if not self._verify() or not isinstance(aRow, int) \
-        or not isinstance(aColumn, int) or aMark not in ["X","O"]:
+        or not isinstance(aColumn, int) or aMark not in ["X","O"," "]:
             return -1
         # incorrect index | position occupied > returning 0
         if aRow < 0 or 2 < aRow or aColumn < 0 or 2 < aColumn or self._board[aRow][aColumn] != " ": return 0
@@ -153,12 +153,6 @@ class GameBoard:
         # no terminal condition > returning ""
         return ""
 
-board = GameBoard()
-board._board[1][2] = "O"
-print("\n", board.get(), "\n")
-sys.exit()
-
-
 ########################################################################################################################
 # Move Input Module                                                                                                    #
 ########################################################################################################################
@@ -190,50 +184,62 @@ def get_player_move(aBoard=list()) -> Tuple[int,int]:
             pass
 
 ### minimax algorithm ##################################################################################################
-def minimax(aMaximizing=True) -> int:
+def minimax(aBoard=GameBoard(), aMaximizing=True) -> int:
     """
     Implements the Minimax Algorithm for determining the next AI move.
     
     Args:
+    - aBoard: GameBoard() object, handles the game board
     - aMaximizing: bool, True = maximizing score, False = minimizing score
     
     Returns:
-    - int: 1 = AI wins | 0 = draw | -1 = player wins | -2 = invalid input
+    - int: 1 = AI wins | 0 = draw | -1 = player wins | -2 = minimax failure
     """
 
     ### verifying inputs -----------------------------------------------------------------------------------------------
 
+    # invalid aBoard type | invalid aMaximizing type > returning -2
+    if not isinstance(aBoard, GameBoard) or not isinstance(aMaximizing, bool): return -2
     # retrieving game board
+    board: List[List[str]] = aBoard.get()
+    # invalid game board > returning -2
+    if board[0][0] == "@": return -2
 
-    ### invalid maximizing flag > error handling
-    if not isinstance(aMaximizing, bool): pass
+    ### checking for terminal conditions -------------------------------------------------------------------------------
 
-    ### terminal conditions > returning score
-    winner = check_winner(aBoard=aBoard) # looking for winner
-    if winner == "O": return 1 # AI wins
-    elif winner == "X": return -1 # player wins
-    elif is_draw(aBoard=aBoard): return 0 # draw
+    # retrieving condition code
+    condition: str = aBoard.check()
+    # AI wins > returning 1
+    if condition == "O": return 1
+    # draw > returning 0
+    if condition == "=": return 0
+    # player wins > returning -1
+    if condition == "X": return -1
+    # error code > returning -2
+    if condition == "@": return -2
+
+    ### minimaxing logic -----------------------------------------------------------------------------------------------
     
-    ### maximizing score
-    if aMaximizing:
-        best_score = -float("inf") # starting from minus infinity
-        # looping through available moves
-        for row,column in [(i,j) for i in range(3) for j in range(3) if aBoard[i][j] == " "]:
-            aBoard[row][column] = "O" # pretending AI move
-            last_score = minimax(aBoard=aBoard, aMaximizing=False) # calling minimax for player move
-            aBoard[row][column] = " " # undoing AI move
-            best_score = max(last_score, best_score) # updating best score
-        return best_score # returning best score
-    
-    ### minimizing score
-    best_score = float("inf") # starting from plus infinity
+    # initializing best score
+    best_score: float = -float("inf") if aMaximizing else float("inf")
     # looping through available moves
-    for row,column in [(i,j) for i in range(3) for j in range(3) if aBoard[i][j] == " "]:
-        aBoard[row][column] = "X" # pretending player move
-        last_score = minimax(aBoard=aBoard, aMaximizing=True) # calling minimax for AI move
-        aBoard[row][column] = " " # undoing player move
-        best_score = min(last_score, best_score) # updating best score
-    return best_score # returning best score
+    for row,column in [(i,j) for i in range(3) for j in range(3) if board[i][j] == " "]:
+        # determining player mark
+        player: str = "O" if aMaximizing else "X"
+        # placing move > update failure > returning -2
+        if aBoard.update(aRow=row, aColumn=column, aMark=player) == -1: return -2
+        # determining minimax flag
+        minimax_flag: bool = False if aMaximizing else True
+        # calling minimax for opponent move
+        last_score = minimax(aBoard=aBoard, aMaximizing=minimax_flag)
+        # minimax failure > returning -2
+        if last_score == -2: return -2
+        # undoing move > update failure > returning -2
+        if aBoard.update(aRow=row, aColumn=column, aMark=" ") == -1: return -2
+        # updating best score
+        best_score = max(last_score, best_score) if aMaximizing else min(last_score, best_score)
+    # returning best score
+    return best_score
 
 ### get ai move function -----------------------------------------------------------------------------------------------
 from typing import List, Tuple
