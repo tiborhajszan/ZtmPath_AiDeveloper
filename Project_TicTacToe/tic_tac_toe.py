@@ -76,6 +76,22 @@ class GameBoard:
         # printing successful > returning true
         return True
     
+    ### method for returning game board ################################################################################
+    def get(self) -> List[List[str]]:
+        """
+        Returns the current state of the Tic-Tac-Toe game board.
+
+        Returns:
+        - List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
+        """
+
+        ### method main logic ------------------------------------------------------------------------------------------
+
+        # invalid game board > returning error board
+        if not self._verify(): return [["@" for _ in range(3)] for _ in range(3)]
+        # valid game board > returning game board
+        else: return self._board
+    
     ### method for updating game board #################################################################################
     def update(self, aRow=int(), aColumn=int(), aMark=str()) -> int:
         """
@@ -138,12 +154,8 @@ class GameBoard:
         return ""
 
 board = GameBoard()
-board._board[0] = ["X","O","X"]
-board._board[1] = ["O","X","O"]
-board._board[2] = ["O","X"," "]
-board.display()
-error_code = board.check()
-print("\n", [error_code], "\n")
+board._board[1][2] = "O"
+print("\n", board.get(), "\n")
 sys.exit()
 
 
@@ -177,21 +189,21 @@ def get_player_move(aBoard=list()) -> Tuple[int,int]:
         except:
             pass
 
-### minimax algorithm --------------------------------------------------------------------------------------------------
-def minimax(aBoard=list(), aMaximizing=True) -> int:
+### minimax algorithm ##################################################################################################
+def minimax(aMaximizing=True) -> int:
     """
-    Implements the Minimax Algorithm to determine the next AI move.
+    Implements the Minimax Algorithm for determining the next AI move.
     
     Args:
-    - aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
     - aMaximizing: bool, True = maximizing score, False = minimizing score
     
     Returns:
-    - int: score for the given board state
+    - int: 1 = AI wins | 0 = draw | -1 = player wins | -2 = invalid input
     """
 
-    ### invalid game board > error handling
-    if not verify_board(aBoard=aBoard): pass
+    ### verifying inputs -----------------------------------------------------------------------------------------------
+
+    # retrieving game board
 
     ### invalid maximizing flag > error handling
     if not isinstance(aMaximizing, bool): pass
