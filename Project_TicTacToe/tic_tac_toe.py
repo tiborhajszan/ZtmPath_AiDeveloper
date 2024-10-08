@@ -4,6 +4,7 @@
 ### imports
 import os, sys
 from typing import List, Tuple
+import time
 
 ########################################################################################################################
 # Game Board Class                                                                                                     #
@@ -82,15 +83,14 @@ class GameBoard:
         Returns the current state of the Tic-Tac-Toe game board.
 
         Returns:
-        - List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
+        - List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "|"@"
         """
 
         ### method main logic ------------------------------------------------------------------------------------------
 
-        # invalid game board > returning error board
-        if not self._verify(): return [["@" for _ in range(3)] for _ in range(3)]
-        # valid game board > returning game board
-        else: return self._board
+        # invalid game board > creating error board >> returning game board
+        self._board[0][0] = "@" if not self._verify() else self._board[0][0]
+        return self._board
     
     ### method for updating game board #################################################################################
     def update(self, aRow=int(), aColumn=int(), aMark=str()) -> int:
@@ -119,6 +119,8 @@ class GameBoard:
         
         # placing player mark on game board
         self._board[aRow][aColumn] = aMark
+        time.sleep(0.33)
+        self.display()
         # update successful > returning 1
         return 1
     
@@ -187,23 +189,23 @@ def get_player_move(aBoard=list()) -> Tuple[int,int]:
 def minimax(aBoard=GameBoard(), aMaximizing=True) -> int:
     """
     Implements the Minimax Algorithm for determining the next AI move.
+    Attempts to minimize the chances of winning of the human player while maximizing its own.
     
     Args:
     - aBoard: GameBoard() object, handles the game board
-    - aMaximizing: bool, True = maximizing score, False = minimizing score
+    - aMaximizing: bool, True = maximizing score | False = minimizing score
     
     Returns:
-    - int: 1 = AI wins | 0 = draw | -1 = player wins | -2 = minimax failure
+    - int: 1 = AI wins | 0 = draw | -1 = player wins | -5 = minimax failure
     """
 
     ### verifying inputs -----------------------------------------------------------------------------------------------
 
-    # invalid aBoard type | invalid aMaximizing type > returning -2
-    if not isinstance(aBoard, GameBoard) or not isinstance(aMaximizing, bool): return -2
-    # retrieving game board
+    # invalid aBoard type | invalid aMaximizing type > returning -5
+    if not isinstance(aBoard, GameBoard) or not isinstance(aMaximizing, bool): return -5
+    # retrieving game board >> invalid game board > returning -5
     board: List[List[str]] = aBoard.get()
-    # invalid game board > returning -2
-    if board[0][0] == "@": return -2
+    if board[0][0] == "@": return -5
 
     ### checking for terminal conditions -------------------------------------------------------------------------------
 
@@ -213,44 +215,45 @@ def minimax(aBoard=GameBoard(), aMaximizing=True) -> int:
     if condition == "O": return 1
     # draw > returning 0
     if condition == "=": return 0
-    # player wins > returning -1
+    # human wins > returning -1
     if condition == "X": return -1
-    # error code > returning -2
-    if condition == "@": return -2
+    # check failure > returning -5
+    if condition == "@": return -5
 
-    ### minimaxing logic -----------------------------------------------------------------------------------------------
+    ### minimax logic --------------------------------------------------------------------------------------------------
     
     # initializing best score
     best_score: float = -float("inf") if aMaximizing else float("inf")
     # looping through available moves
     for row,column in [(i,j) for i in range(3) for j in range(3) if board[i][j] == " "]:
-        # determining player mark
-        player: str = "O" if aMaximizing else "X"
-        # placing move > update failure > returning -2
-        if aBoard.update(aRow=row, aColumn=column, aMark=player) == -1: return -2
-        # determining minimax flag
+        # determining player mark >> placing move > update failure > returning -5
+        player_mark: str = "O" if aMaximizing else "X"
+        if aBoard.update(aRow=row, aColumn=column, aMark=player_mark) == -1: return -5
+        # determining minimax flag >> calling minimax for opponent move >> minimax failure > returning -5
         minimax_flag: bool = False if aMaximizing else True
-        # calling minimax for opponent move
         last_score = minimax(aBoard=aBoard, aMaximizing=minimax_flag)
-        # minimax failure > returning -2
-        if last_score == -2: return -2
-        # undoing move > update failure > returning -2
-        if aBoard.update(aRow=row, aColumn=column, aMark=" ") == -1: return -2
+        if last_score == -5: return -5
+        # undoing move > update failure > returning -5
+        if aBoard.update(aRow=row, aColumn=column, aMark=" ") == -1: return -5
         # updating best score
         best_score = max(last_score, best_score) if aMaximizing else min(last_score, best_score)
     # returning best score
     return best_score
 
-### get ai move function -----------------------------------------------------------------------------------------------
-from typing import List, Tuple
+board = GameBoard()
+board.update(aRow=1, aColumn=1, aMark="X")
+return_code = minimax(aBoard=board, aMaximizing=True)
+print (f"\n{return_code}\n")
+sys.exit()
 
-def get_ai_move(aBoard: List[List[str]]) -> Tuple[int, int]:
+### function for figuring ai move ######################################################################################
+def ai_move(aBoard=GameBoard()) -> int:
     """
-    Determines the AI's next move using the Minimax algorithm.
+    Determines the next AI move using the Minimax Algorithm.
     
     This function first verifies the board's integrity using `verify_board()`.
     Then, it computes the optimal move for the AI ("O") based on the current board state.
-    The AI will attempt to minimize the player's chances of winning while maximizing its own.
+    
     
     Args:
     - aBoard (List[List[str]]): The current state of the Tic-Tac-Toe board.
