@@ -108,20 +108,19 @@ class GameBoard:
 
         ### verifying inputs -------------------------------------------------------------------------------------------
 
-        # invalid input > returning -1
-        if not self._verify() or not isinstance(aRow, int) \
-        or not isinstance(aColumn, int) or aMark not in ["X","O"," "]:
-            return -1
-        # incorrect index | position occupied > returning 0
-        if aRow < 0 or 2 < aRow or aColumn < 0 or 2 < aColumn or self._board[aRow][aColumn] != " ": return 0
+        # invalid game board > returning -1
+        if not self._verify(): return -1
+        # invalid input type > returning -1
+        if not isinstance(aRow, int) or not isinstance(aColumn, int) or aMark not in ["X","O"," "]: return -1
+        # invalid index > returning 0
+        if aRow < 0 or 2 < aRow or aColumn < 0 or 2 < aColumn: return 0
+        # position already occupied > returning 0
+        if aMark in ["X","O"] and self._board[aRow][aColumn] != " ": return 0
 
         ### method main logic ------------------------------------------------------------------------------------------
         
-        # placing player mark on game board
+        # placing player mark on game board >> returning 1
         self._board[aRow][aColumn] = aMark
-        time.sleep(0.33)
-        self.display()
-        # update successful > returning 1
         return 1
     
     ### method for checking terminal conditions ########################################################################
@@ -240,50 +239,57 @@ def minimax(aBoard=GameBoard(), aMaximizing=True) -> int:
     # returning best score
     return best_score
 
-board = GameBoard()
-board.update(aRow=1, aColumn=1, aMark="X")
-return_code = minimax(aBoard=board, aMaximizing=True)
-print (f"\n{return_code}\n")
-sys.exit()
-
 ### function for figuring ai move ######################################################################################
-def ai_move(aBoard=GameBoard()) -> int:
+def ai_move(aBoard=GameBoard()) -> bool:
     """
     Determines the next AI move using the Minimax Algorithm.
     
-    This function first verifies the board's integrity using `verify_board()`.
-    Then, it computes the optimal move for the AI ("O") based on the current board state.
-    
-    
     Args:
-    - aBoard (List[List[str]]): The current state of the Tic-Tac-Toe board.
+    - aBoard: GameBoard() object, handles the game board
     
     Returns:
-    - Tuple[int, int]: The (row, col) of the optimal move for the AI.
+    - bool: True = move success | False = move failure
     """
 
-    def available_moves(board: List[List[str]]) -> List[Tuple[int, int]]:
-        """Returns a list of available moves as (row, col) tuples."""
-        return 
+    ### function init --------------------------------------------------------------------------------------------------
 
-    # Ensure the board is valid
-    if not verify_board(aBoard):
-        raise ValueError("Invalid board provided")
+    # invalid aBoard type > returning false
+    if not isinstance(aBoard, GameBoard): return False
+    # retrieving game board >> invalid game board > returning false
+    board: List[List[str]] = aBoard.get()
+    if board[0][0] == "@": return False
+    # best row, column, score inits
+    best_row, best_column, best_score = -1, -1, -float("inf")
 
-    # Initialize best variables
-    best_move = (-1, -1)
-    best_score = -float('inf')
+    ### function main logic --------------------------------------------------------------------------------------------
     
-    # Loop through available moves and apply Minimax
-    for row, col in available_moves(aBoard):
-        aBoard[row][col] = "O"
-        score = minimax(aBoard, False)
-        aBoard[row][col] = " "  # Undo move
-        if score > best_score:
-            best_score = score
-            best_move = (row, col)
+    ### figuring best move
+    # looping through available moves
+    for row,column in [(i,j) for i in range(3) for j in range(3) if board[i][j] == " "]:
+        # placing AI move > update failure > returning false
+        if aBoard.update(aRow=row, aColumn=column, aMark="O") == -1: return False
+        # calling minimax for human move >> minimax failure > returning false
+        last_score = minimax(aBoard=aBoard, aMaximizing=False)
+        if last_score == -5: return False
+        # undoing AI move > update failure > returning false
+        if aBoard.update(aRow=row, aColumn=column, aMark=" ") == -1: return False
+        # better move found > updating best stuff
+        if best_score < last_score: best_row, best_column, best_score = row, column, last_score
     
-    return best_move
+    ### taking best move
+    # placing best move > update failure > returning false
+    if aBoard.update(aRow=best_row, aColumn=best_column, aMark="O") == -1: return False
+    # move success > returning true
+    return True
+
+board = GameBoard()
+board.update(aRow=1, aColumn=1, aMark="X")
+board.display()
+return_code = ai_move(aBoard=board)
+board.display()
+print (f"\n{return_code}\n")
+sys.exit()
+
 
 ########################################################################################################################
 # Game Utility Module                                                                                                  #
