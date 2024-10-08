@@ -55,7 +55,7 @@ class GameBoard:
         Prints the current Tic-Tac-Toe game board to the console.
         
         Returns:
-        - bool: True = printing successful | False = invalid game board
+        - bool: True = print success | False = print failure
         """
 
         ### verifying game board ---------------------------------------------------------------------------------------
@@ -65,15 +65,15 @@ class GameBoard:
 
         ### method main logic ------------------------------------------------------------------------------------------
 
-        # printing column numbers
+        # clearing screen >> printing column numbers
+        print("\033[H\033[J", end="")
         print("\n   | 1 | 2 | 3 ")
         # looping through rows of game board
         for index,row in enumerate(self._board):
-            # printing divider
+            # printing divider >> printing row number and row
             print("---|---|---|---")
-            # printing row number and row
             print(f" {index+1} | {row[0]} | {row[1]} | {row[2]} ")
-        # printing successful > returning true
+        # print success > returning true
         return True
     
     ### method for returning game board ################################################################################
