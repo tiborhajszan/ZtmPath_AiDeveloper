@@ -4,7 +4,6 @@
 ### imports
 import os, sys
 from typing import List, Tuple
-import time
 
 ########################################################################################################################
 # Game Board Class                                                                                                     #
@@ -12,10 +11,10 @@ import time
 
 class GameBoard:
     """
-    Represents the Tic-Tac-Toe game board.
+    Represents and handles the Tic-Tac-Toe game board.
     
     Attributes:
-    - _board : List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
+    - _board : List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "|"@"
     """
     
     ### constructor method #############################################################################################
@@ -32,8 +31,8 @@ class GameBoard:
         """
         Verifies the integrity of the Tic-Tac-Toe game board by checking the following conditions:
         1. _board must be a list of size 3.
-        2. Each element of _board must be a list of size 3.
-        3. Each element of the sublists must be one of "X", "O", or " " (space).
+        2. Each item of _board must be a list of size 3.
+        3. Each item of the sublists must be "X"|"O"|" " (space).
 
         Returns:
         - bool: True = valid game board | False = invalid game board
@@ -43,9 +42,9 @@ class GameBoard:
 
         # _board is not list of size 3 > returning false
         if not isinstance(self._board, list) or len(self._board) != 3: return False
-        # _board elements are not lists of size 3 > returning false
+        # _board items are not lists of size 3 > returning false
         if not all(isinstance(row, list) and len(row) == 3 for row in self._board): return False
-        # _board sublist elements are not "X"|"O"|" " > returning false
+        # _board sublist items are not "X"|"O"|" " > returning false
         if not all(item in ["X","O"," "] for row in self._board for item in row): return False
         # all checks passed > returning true
         return True
@@ -103,15 +102,15 @@ class GameBoard:
         - aMark: str, player mark "X"|"O"
         
         Returns:
-        - int: 1 = update successful | 0 = update failed | -1 = invalid input
+        - int: 1 = update success | 0 = invalid move | -5 = update failure
         """
 
         ### verifying inputs -------------------------------------------------------------------------------------------
 
-        # invalid game board > returning -1
-        if not self._verify(): return -1
-        # invalid input type > returning -1
-        if not isinstance(aRow, int) or not isinstance(aColumn, int) or aMark not in ["X","O"," "]: return -1
+        # invalid game board > returning -5
+        if not self._verify(): return -5
+        # invalid input type > returning -5
+        if not isinstance(aRow, int) or not isinstance(aColumn, int) or aMark not in ["X","O"," "]: return -5
         # invalid index > returning 0
         if aRow < 0 or 2 < aRow or aColumn < 0 or 2 < aColumn: return 0
         # position already occupied > returning 0
@@ -128,7 +127,7 @@ class GameBoard:
         """Checks the Tic-Tac-Toe game board for a winner or draw.
 
         Returns:
-        - str: "X" = player wins | "O" = AI wins | "=" = draw | "" = no terminal condition | "@" = invalid game board
+        - str: "X" = human wins | "O" = AI wins | "=" = draw | "" = no terminal condition | "@" = check failure
         """
 
         ### verifying game board ---------------------------------------------------------------------------------------
@@ -145,44 +144,64 @@ class GameBoard:
         win_conditions.append([self._board[index][2 - index] for index in range(3)]) # slash diagonal
 
         ### checking for terminal conditions
-        # player wins > returning "X"
+        # human wins > returning "X"
         if any(line == ["X"] * 3 for line in win_conditions): return "X"
         # AI wins > returning "O"
         if any(line == ["O"] * 3 for line in win_conditions): return "O"
         # draw > returning "="
         if all(item in ["X","O"] for row in self._board for item in row): return "="
-        # no terminal condition > returning ""
+        # no terminal condition > returning empty string
         return ""
 
 ########################################################################################################################
 # Move Input Module                                                                                                    #
 ########################################################################################################################
 
-### function for obtaining player move ---------------------------------------------------------------------------------
-def get_player_move(aBoard=list()) -> Tuple[int,int]:
+### function for obtaining human move ----------------------------------------------------------------------------------
+def human_move(aBoard=GameBoard()) -> bool:
     """
-    Obtains, validates, and returns a move from the player.
+    Obtains, validates, and places a move on the Tic-Tac-Toe game board from the human player.
 
     Args:
-    - aBoard: List[List[str]], current state of game board, 3x3 list of strings, elements "X"|"O"|" "
+    - aBoard: GameBoard() object, handles the game board
 
     Returns:
-    - Tuple[int,int]: row and column of player move
+    - bool: True = move success | False = move failure
     """
     
-    ### invalid game board > returning invalid player move
-    if not verify_board(aBoard=aBoard): return -1,-1
+    ### verifying input  -----------------------------------------------------------------------------------------------
 
-    ### looping until valid player move is entered
+    # invalid aBoard type > returning false
+    if not isinstance(aBoard, GameBoard): return False
+
+    ### function main logic --------------------------------------------------------------------------------------------
+
+    # printing separator line
+    print()
+    # looping until valid move is entered
     while True:
-        # trying: prompting for move > parsing input > validating and returning move
-        try:
-            player_move = input("Enter your move (row,col): ").strip()
-            row,column = map(lambda x: int(x)-1, player_move.split(","))
-            if 0 <= row < 3 and 0 <= column < 3 and aBoard[row][column] == " ": return row,column
-        # error: continuing loop
-        except:
-            pass
+        # prompting for move > splitting input >> stripping leading and trailing spaces
+        player_move: List[str] = input("Enter your move (row,column): ").split(",")
+        player_move = [item.strip() for item in player_move]
+        # invalid input >> deleting prompt > restarting loop
+        if len(player_move) != 2 or not all(item.isdecimal() for item in player_move):
+            print("\033[1A", end="\x1b[2K"); continue
+        # converting input to game board position indices >> placing move on game board
+        row,column = map(lambda x: int(x)-1, player_move)
+        return_code: int = aBoard.update(aRow=row, aColumn=column, aMark="X")
+        # update success > returning true >> update failure > returning false
+        if return_code == 1: return True
+        if return_code == -5: return False
+        # invalid move > deleting prompt > restarting loop
+        print("\033[1A", end="\x1b[2K")
+
+board = GameBoard()
+board.display()
+return_code = human_move(aBoard=board)
+board.display()
+print (f"\n{return_code}\n")
+sys.exit()
+
 
 ### minimax algorithm ##################################################################################################
 def minimax(aBoard=GameBoard(), aMaximizing=True) -> int:
@@ -281,14 +300,6 @@ def ai_move(aBoard=GameBoard()) -> bool:
     if aBoard.update(aRow=best_row, aColumn=best_column, aMark="O") == -1: return False
     # move success > returning true
     return True
-
-board = GameBoard()
-board.update(aRow=1, aColumn=1, aMark="X")
-board.display()
-return_code = ai_move(aBoard=board)
-board.display()
-print (f"\n{return_code}\n")
-sys.exit()
 
 
 ########################################################################################################################
