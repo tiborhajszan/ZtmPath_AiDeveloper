@@ -195,14 +195,6 @@ def human_move(aBoard=GameBoard()) -> bool:
         # invalid move > deleting prompt > restarting loop
         print("\033[1A", end="\x1b[2K")
 
-board = GameBoard()
-board.display()
-return_code = human_move(aBoard=board)
-board.display()
-print (f"\n{return_code}\n")
-sys.exit()
-
-
 ### minimax algorithm ##################################################################################################
 def minimax(aBoard=GameBoard(), aMaximizing=True) -> int:
     """
@@ -301,73 +293,57 @@ def ai_move(aBoard=GameBoard()) -> bool:
     # move success > returning true
     return True
 
-
 ########################################################################################################################
-# Game Utility Module                                                                                                  #
+# Game Control Module                                                                                                  #
 ########################################################################################################################
 
-### function for ending | restarting game ------------------------------------------------------------------------------
-def restart_game(aMessage=str()) -> None:
+### game loop function #################################################################################################
+def game_loop() -> bool:
+    print("\nGame loop is running...")
+    return False
+
+### main loop function for ending | restarting game ####################################################################
+def main_loop() -> None:
     """
-    Handles errors, and restarts or ends the Tic-Tac-Toe game.
-
-    Args:
-    - aMessage: str, optional error message to display
+    Restarts or ends the Tic-Tac-Toe game.
     """
 
-    #>>> verifying and printing error message
-    # aMessage not string > aMessage empty string
-    if not isinstance(aMessage, str): aMessage = str()
-    # aMessage valid string > adding separator lines
-    if 0 < len(aMessage): aMessage = "\n" + aMessage + "\n"
-    # printing to console
-    print(aMessage)
+    ### function main logic --------------------------------------------------------------------------------------------
 
-    #>>> input loop
-    # continuous looping until valid choice is entered
+    ### continuous looping until user decides to quit
     while True:
-        # prompting user and parsing input
-        user_choice = input("Enter 'r' to restart game or 'q' to quit: ").strip().lower()
-        # valid user choice > breaking loop
-        if user_choice in ["r","q"]: break
-        # invalid user choice > deleting prompt, continuing loop
-        print("\033[1A", end="\x1b[2K")
 
-    #>>> restarting game
-    # user choice is restart
-    if user_choice == 'r':
-        # printing confirmation
-        print("\nRestarting Game...")
-        # restarting script
-        os.system("cls")
-        os.execl(sys.executable, "python", __file__)
-        sys.exit()
+        ### running game
+        # starting game loop
+        return_code: bool = game_loop()
+        # game loop success > printing game over message >> game loop failure > printing error message
+        if return_code: print("\nGame Over!")
+        else: print ("\nSomething went wrong. (Gremlins in the code...:)")
 
-    #>>> quitting game
-    # terminating script, printing confirmation
-    sys.exit("\nGame Over!")
+        ### input loop
+        # printing separator line
+        print()
+        # continuous looping until valid choice is entered
+        while True:
+            # prompting user > parsing input
+            user_choice: str = input("Enter 'r' to restart game or 'q' to quit: ").strip().lower()
+            # valid choice > breaking loop >> invalid choice > deleting prompt
+            if user_choice in ["r","q"]: break
+            else: print("\033[1A", end="\x1b[2K")
 
+        ### quitting game
+        # choice is quit > terminating loop
+        if user_choice == 'q': break
 
+    ### terminating function -------------------------------------------------------------------------------------------
 
-########################################################################################################################
+    # printing parting message >> returning
+    print("\nSee you soon!\n")
+    return
 
-def tic_tac_toe():
-    board = [' ' for _ in range(9)]
-    current_player = 'X'
-
-    while True:
-        display_board(board)
-        player_move(board, current_player)
-
-        if check_win(board, current_player):
-            display_board(board)
-            print(f"Player {current_player} wins!")
-            break
-        elif check_draw(board):
-            display_board(board)
-            print("It's a draw!")
-            break
-
-        current_player = 'O' if current_player == 'X' else 'X'
-
-tic_tac_toe()
+### executing script
+# main program > starting main loop >> import module > printing error message
+if __name__ == "__main__": main_loop()
+else: print("\nError: This is not an import module.\n")
+# terminating execution
+sys.exit()
