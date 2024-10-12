@@ -299,8 +299,47 @@ def ai_move(aBoard=GameBoard()) -> bool:
 
 ### game loop function #################################################################################################
 def game_loop() -> bool:
-    print("\nGame loop is running...")
-    return False
+    """
+    Runs the main game loop for Tic-Tac-Toe.
+    
+    Returns:
+    - bool: True = game loop success | False = game loop failure
+    """
+
+    ### function main logic --------------------------------------------------------------------------------------------
+
+    ### initializing game board and starting player
+    board: GameBoard = GameBoard()
+    player: str = "X"
+
+    ### looping while terminal condition or failure occurs
+    while True:
+
+        ### placing and displaying moves
+        # displaying game board > print failure > returning false
+        if not board.display(): return False
+        # human turn >> placing human move > move failure > returning false
+        if player == "X":
+            if not human_move(aBoard=board): return False
+        # AI turn >> placing AI move > move failure > returning false
+        else:
+            if not ai_move(board): return False
+        
+        ### checking for terminal condition (win | lose | draw | failure)
+        # reading condition code
+        condition: str = board.check()
+        # check failure > returning false
+        if condition == "@": return False
+        # no terminal condition > switching turns > restarting loop
+        elif not condition: player = "O" if player == "X" else "X"; continue
+        # terminal condition
+        else:
+            # displaying final game board > print failure > returning false >> displaying separator line
+            if not board.display(): return False
+            print()
+            # displaying result >> returning true
+            print("You won!" if condition == "X" else "AI won!" if condition == "O" else "It is a draw!")
+            return True
 
 ### main loop function for ending | restarting game ####################################################################
 def main_loop() -> None:
@@ -310,7 +349,7 @@ def main_loop() -> None:
 
     ### function main logic --------------------------------------------------------------------------------------------
 
-    ### continuous looping until user decides to quit
+    ### looping until user decides to quit
     while True:
 
         ### running game
