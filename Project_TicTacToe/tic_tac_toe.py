@@ -2,8 +2,8 @@
 ### Section 5: Challenge - Build Your Second Game (Tic-Tac-Toe with AI opponent)
 
 ### imports
-import os, sys
-from typing import List, Tuple
+import sys
+from typing import List
 
 ########################################################################################################################
 # Game Board Class                                                                                                     #
@@ -157,7 +157,7 @@ class GameBoard:
 # Move Input Module                                                                                                    #
 ########################################################################################################################
 
-### function for obtaining human move ----------------------------------------------------------------------------------
+### function for obtaining human move ##################################################################################
 def human_move(aBoard=GameBoard()) -> bool:
     """
     Obtains, validates, and places a move on the Tic-Tac-Toe game board from the human player.
@@ -199,23 +199,21 @@ def human_move(aBoard=GameBoard()) -> bool:
 def minimax(aBoard=GameBoard(), aMaximizing=True) -> int:
     """
     Implements the Minimax Algorithm for determining the next AI move.
-    Attempts to minimize the chances of winning of the human player while maximizing its own.
+    Attempts to maximize the chances of winning for the AI player.
+    Attempts to minimize the chances of winning for the human player.
     
     Args:
     - aBoard: GameBoard() object, handles the game board
     - aMaximizing: bool, True = maximizing score | False = minimizing score
     
     Returns:
-    - int: 1 = AI wins | 0 = draw | -1 = player wins | -5 = minimax failure
+    - int: 1 = AI wins | 0 = draw | -1 = human wins | -5 = minimax failure
     """
 
     ### verifying inputs -----------------------------------------------------------------------------------------------
 
-    # invalid aBoard type | invalid aMaximizing type > returning -5
-    if not isinstance(aBoard, GameBoard) or not isinstance(aMaximizing, bool): return -5
-    # retrieving game board >> invalid game board > returning -5
-    board: List[List[str]] = aBoard.get()
-    if board[0][0] == "@": return -5
+    # invalid aBoard type | invalid game board | invalid aMaximizing type > returning -5
+    if not isinstance(aBoard, GameBoard) or aBoard.get()[0][0] == "@" or not isinstance(aMaximizing, bool): return -5
 
     ### checking for terminal conditions -------------------------------------------------------------------------------
 
@@ -235,16 +233,16 @@ def minimax(aBoard=GameBoard(), aMaximizing=True) -> int:
     # initializing best score
     best_score: float = -float("inf") if aMaximizing else float("inf")
     # looping through available moves
-    for row,column in [(i,j) for i in range(3) for j in range(3) if board[i][j] == " "]:
+    for row,column in [(i,j) for i in range(3) for j in range(3) if aBoard.get()[i][j] == " "]:
         # determining player mark >> placing move > update failure > returning -5
         player_mark: str = "O" if aMaximizing else "X"
-        if aBoard.update(aRow=row, aColumn=column, aMark=player_mark) == -1: return -5
+        if aBoard.update(aRow=row, aColumn=column, aMark=player_mark) == -5: return -5
         # determining minimax flag >> calling minimax for opponent move >> minimax failure > returning -5
         minimax_flag: bool = False if aMaximizing else True
         last_score = minimax(aBoard=aBoard, aMaximizing=minimax_flag)
         if last_score == -5: return -5
         # undoing move > update failure > returning -5
-        if aBoard.update(aRow=row, aColumn=column, aMark=" ") == -1: return -5
+        if aBoard.update(aRow=row, aColumn=column, aMark=" ") == -5: return -5
         # updating best score
         best_score = max(last_score, best_score) if aMaximizing else min(last_score, best_score)
     # returning best score
@@ -264,33 +262,29 @@ def ai_move(aBoard=GameBoard()) -> bool:
 
     ### function init --------------------------------------------------------------------------------------------------
 
-    # invalid aBoard type > returning false
-    if not isinstance(aBoard, GameBoard): return False
-    # retrieving game board >> invalid game board > returning false
-    board: List[List[str]] = aBoard.get()
-    if board[0][0] == "@": return False
+    # invalid aBoard type | invalid game board > returning false
+    if not isinstance(aBoard, GameBoard) or aBoard.get()[0][0] == "@": return False
     # best row, column, score inits
     best_row, best_column, best_score = -1, -1, -float("inf")
 
-    ### function main logic --------------------------------------------------------------------------------------------
+    ### figuring best move ---------------------------------------------------------------------------------------------
     
-    ### figuring best move
     # looping through available moves
-    for row,column in [(i,j) for i in range(3) for j in range(3) if board[i][j] == " "]:
+    for row,column in [(i,j) for i in range(3) for j in range(3) if aBoard.get()[i][j] == " "]:
         # placing AI move > update failure > returning false
-        if aBoard.update(aRow=row, aColumn=column, aMark="O") == -1: return False
+        if aBoard.update(aRow=row, aColumn=column, aMark="O") == -5: return False
         # calling minimax for human move >> minimax failure > returning false
         last_score = minimax(aBoard=aBoard, aMaximizing=False)
         if last_score == -5: return False
         # undoing AI move > update failure > returning false
-        if aBoard.update(aRow=row, aColumn=column, aMark=" ") == -1: return False
+        if aBoard.update(aRow=row, aColumn=column, aMark=" ") == -5: return False
         # better move found > updating best stuff
         if best_score < last_score: best_row, best_column, best_score = row, column, last_score
     
-    ### taking best move
-    # placing best move > update failure > returning false
-    if aBoard.update(aRow=best_row, aColumn=best_column, aMark="O") == -1: return False
-    # move success > returning true
+    ### taking best move -----------------------------------------------------------------------------------------------
+
+    # placing best move > update failure > returning false >> move success > returning true
+    if aBoard.update(aRow=best_row, aColumn=best_column, aMark="O") == -5: return False
     return True
 
 ########################################################################################################################
@@ -306,16 +300,18 @@ def game_loop() -> bool:
     - bool: True = game loop success | False = game loop failure
     """
 
-    ### function main logic --------------------------------------------------------------------------------------------
+    ### function init --------------------------------------------------------------------------------------------------
 
     ### initializing game board and starting player
-    board: GameBoard = GameBoard()
-    player: str = "X"
+    board: GameBoard = GameBoard(); player: str = "X"
 
-    ### looping while terminal condition or failure occurs
+    ### game loop init -------------------------------------------------------------------------------------------------
+
+    # looping while terminal condition occurs
     while True:
 
-        ### placing and displaying moves
+        ### placing and displaying moves -------------------------------------------------------------------------------
+
         # displaying game board > print failure > returning false
         if not board.display(): return False
         # human turn >> placing human move > move failure > returning false
@@ -323,9 +319,10 @@ def game_loop() -> bool:
             if not human_move(aBoard=board): return False
         # AI turn >> placing AI move > move failure > returning false
         else:
-            if not ai_move(board): return False
+            if not ai_move(aBoard=board): return False
         
-        ### checking for terminal condition (win | lose | draw | failure)
+        ### checking for terminal condition (win | lose | draw | failure) ----------------------------------------------
+
         # reading condition code
         condition: str = board.check()
         # check failure > returning false
@@ -334,10 +331,10 @@ def game_loop() -> bool:
         elif not condition: player = "O" if player == "X" else "X"; continue
         # terminal condition
         else:
-            # displaying final game board > print failure > returning false >> displaying separator line
+            # displaying final game board > print failure > returning false
             if not board.display(): return False
+            # displaying separator line >> displaying result >> returning true
             print()
-            # displaying result >> returning true
             print("You won!" if condition == "X" else "AI won!" if condition == "O" else "It is a draw!")
             return True
 
