@@ -23,7 +23,7 @@ class GameBoard:
 
         ### method main logic ------------------------------------------------------------------------------------------
 
-        # creating empty game board as 3x3 list of strings filled with spaces
+        # creating 3x3 list of strings filled with spaces
         self._board: List[List[str]] = [[" " for _ in range(3)] for _ in range(3)]
 
     ### private method for verifying game board ########################################################################
@@ -32,7 +32,7 @@ class GameBoard:
         Verifies the integrity of the Tic-Tac-Toe game board by checking the following conditions:
         1. _board must be a list of size 3.
         2. Each item of _board must be a list of size 3.
-        3. Each item of the sublists must be "X"|"O"|" " (space).
+        3. Each item of the sublists must be "X"|"O"|" ".
 
         Returns:
         - bool: True = valid game board | False = invalid game board
@@ -65,12 +65,12 @@ class GameBoard:
 
         ### method main logic ------------------------------------------------------------------------------------------
 
-        # clearing screen >> printing column numbers
+        # clearing screen > printing column numbers
         print("\033[H\033[J", end="")
         print("\n   | 1 | 2 | 3 ")
         # looping through rows of game board
         for index,row in enumerate(self._board):
-            # printing divider >> printing row number and row
+            # printing divider > printing row number and player marks
             print("---|---|---|---")
             print(f" {index+1} | {row[0]} | {row[1]} | {row[2]} ")
         # print success > returning true
@@ -87,19 +87,19 @@ class GameBoard:
 
         ### method main logic ------------------------------------------------------------------------------------------
 
-        # invalid game board > creating error board >> returning game board
+        # invalid game board > placing error mark > returning game board
         self._board[0][0] = "@" if not self._verify() else self._board[0][0]
         return self._board
     
     ### method for updating game board #################################################################################
     def update(self, aRow=int(), aColumn=int(), aMark=str()) -> int:
         """
-        Updates the Tic-Tac-Toe game board with the player move.
+        Updates the Tic-Tac-Toe game board with the player mark.
         
         Args:
         - aRow: int, 0-2, row index of player move
         - aColumn: int, 0-2, column index of player move
-        - aMark: str, player mark "X"|"O"
+        - aMark: str, player mark "X"|"O"|" "
         
         Returns:
         - int: 1 = update success | 0 = invalid move | -5 = update failure
@@ -118,7 +118,7 @@ class GameBoard:
 
         ### method main logic ------------------------------------------------------------------------------------------
         
-        # placing player mark on game board >> returning 1
+        # placing player mark on game board > returning 1
         self._board[aRow][aColumn] = aMark
         return 1
     
@@ -135,15 +135,15 @@ class GameBoard:
         # invalid game board > returning "@"
         if not self._verify(): return "@"
 
-        ### method main logic ------------------------------------------------------------------------------------------
+        ### defining win conditions ------------------------------------------------------------------------------------
 
-        ### defining win conditions
         win_conditions: List[List[str]] = [self._board[row] for row in range(3)] # rows
         win_conditions.extend([list(column) for column in zip(*self._board)]) # columns
         win_conditions.append([self._board[index][index] for index in range(3)]) # backslash diagonal
         win_conditions.append([self._board[index][2 - index] for index in range(3)]) # slash diagonal
 
-        ### checking for terminal conditions
+        ### checking for terminal conditions ---------------------------------------------------------------------------
+        
         # human wins > returning "X"
         if any(line == ["X"] * 3 for line in win_conditions): return "X"
         # AI wins > returning "O"
