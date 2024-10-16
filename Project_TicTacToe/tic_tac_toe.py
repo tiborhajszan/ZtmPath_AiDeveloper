@@ -94,7 +94,7 @@ class GameBoard:
     ### method for updating game board #################################################################################
     def update(self, aRow=int(), aColumn=int(), aMark=str()) -> int:
         """
-        Updates the Tic-Tac-Toe game board with the player mark.
+        Updates the Tic-Tac-Toe game board with the player move.
         
         Args:
         - aRow: int, 0-2, row index of player move
@@ -169,28 +169,40 @@ def human_move(aBoard=GameBoard()) -> bool:
     - bool: True = move success | False = move failure
     """
     
-    ### verifying input  -----------------------------------------------------------------------------------------------
+    ### function init  -------------------------------------------------------------------------------------------------
 
     # invalid aBoard type > returning false
     if not isinstance(aBoard, GameBoard): return False
-
-    ### function main logic --------------------------------------------------------------------------------------------
-
     # printing separator line
     print()
-    # looping until valid move is entered
+
+    ### move entry loop ------------------------------------------------------------------------------------------------
+
+    # looping until valid move is entered and placed
     while True:
-        # prompting for move > splitting input >> stripping leading and trailing spaces
+
+        ### loop: obtaining and validating move ........................................................................
+
+        # prompting for move > splitting input
         player_move: List[str] = input("Enter your move (row,column): ").split(",")
+        # stripping leading and trailing spaces
         player_move = [item.strip() for item in player_move]
-        # invalid input >> deleting prompt > restarting loop
+        # invalid input > deleting prompt > restarting loop
         if len(player_move) != 2 or not all(item.isdecimal() for item in player_move):
             print("\033[1A", end="\x1b[2K"); continue
-        # converting input to game board position indices >> placing move on game board
+        
+        ### loop: placing move on game board ...........................................................................
+
+        # converting input to game board position
         row,column = map(lambda x: int(x)-1, player_move)
+        # placing move on game board
         return_code: int = aBoard.update(aRow=row, aColumn=column, aMark="X")
-        # update success > returning true >> update failure > returning false
+
+        ### loop: evaluating game board update .........................................................................
+
+        # update success > returning true
         if return_code == 1: return True
+        # update failure > returning false
         if return_code == -5: return False
         # invalid move > deleting prompt > restarting loop
         print("\033[1A", end="\x1b[2K")
@@ -210,10 +222,12 @@ def minimax(aBoard=GameBoard(), aMaximizing=True) -> int:
     - int: 1 = AI wins | 0 = draw | -1 = human wins | -5 = minimax failure
     """
 
-    ### verifying inputs -----------------------------------------------------------------------------------------------
+    ### function init --------------------------------------------------------------------------------------------------
 
     # invalid aBoard type | invalid game board | invalid aMaximizing type > returning -5
     if not isinstance(aBoard, GameBoard) or aBoard.get()[0][0] == "@" or not isinstance(aMaximizing, bool): return -5
+    # best score init
+    best_score: float = -float("inf") if aMaximizing else float("inf")
 
     ### checking for terminal conditions -------------------------------------------------------------------------------
 
@@ -230,21 +244,34 @@ def minimax(aBoard=GameBoard(), aMaximizing=True) -> int:
 
     ### minimax logic --------------------------------------------------------------------------------------------------
     
-    # initializing best score
-    best_score: float = -float("inf") if aMaximizing else float("inf")
     # looping through available moves
     for row,column in [(i,j) for i in range(3) for j in range(3) if aBoard.get()[i][j] == " "]:
-        # determining player mark >> placing move > update failure > returning -5
+
+        ### loop: placing and validating current move ..................................................................
+
+        # determining current player mark
         player_mark: str = "O" if aMaximizing else "X"
-        if aBoard.update(aRow=row, aColumn=column, aMark=player_mark) == -5: return -5
-        # determining minimax flag >> calling minimax for opponent move >> minimax failure > returning -5
+        # placing current move > invalid move | update failure > returning -5
+        if aBoard.update(aRow=row, aColumn=column, aMark=player_mark) in [0,-5]: return -5
+
+        ### loop: recursively calling minimax for next turn ............................................................
+
+        # determining current minimax flag
         minimax_flag: bool = False if aMaximizing else True
+        # calling minimax for next turn
         last_score = minimax(aBoard=aBoard, aMaximizing=minimax_flag)
+        # minimax failure > returning -5
         if last_score == -5: return -5
-        # undoing move > update failure > returning -5
-        if aBoard.update(aRow=row, aColumn=column, aMark=" ") == -5: return -5
+
+        ### loop: clean-up and score accounting ........................................................................
+
+        # undoing current move > invalid move | update failure > returning -5
+        if aBoard.update(aRow=row, aColumn=column, aMark=" ") in [0,-5]: return -5
         # updating best score
         best_score = max(last_score, best_score) if aMaximizing else min(last_score, best_score)
+    
+    ### function termination -------------------------------------------------------------------------------------------
+    
     # returning best score
     return best_score
 
@@ -264,27 +291,38 @@ def ai_move(aBoard=GameBoard()) -> bool:
 
     # invalid aBoard type | invalid game board > returning false
     if not isinstance(aBoard, GameBoard) or aBoard.get()[0][0] == "@": return False
-    # best row, column, score inits
+    # best row, best column, best score inits
     best_row, best_column, best_score = -1, -1, -float("inf")
 
     ### figuring best move ---------------------------------------------------------------------------------------------
     
     # looping through available moves
     for row,column in [(i,j) for i in range(3) for j in range(3) if aBoard.get()[i][j] == " "]:
-        # placing AI move > update failure > returning false
-        if aBoard.update(aRow=row, aColumn=column, aMark="O") == -5: return False
-        # calling minimax for human move >> minimax failure > returning false
+
+        ### loop: starting minimax stack ...............................................................................
+
+        # placing initial move > invalid move | update failure > returning false
+        if aBoard.update(aRow=row, aColumn=column, aMark="O") in [0,-5]: return False
+        # calling minimax for next turn
         last_score = minimax(aBoard=aBoard, aMaximizing=False)
+        # minimax failure > returning false
         if last_score == -5: return False
-        # undoing AI move > update failure > returning false
-        if aBoard.update(aRow=row, aColumn=column, aMark=" ") == -5: return False
+
+        ### loop: clean-up and score accounting ........................................................................
+
+        # undoing initial move > invalid move | update failure > returning false
+        if aBoard.update(aRow=row, aColumn=column, aMark=" ") in [0,-5]: return False
         # better move found > updating best stuff
         if best_score < last_score: best_row, best_column, best_score = row, column, last_score
     
     ### taking best move -----------------------------------------------------------------------------------------------
 
-    # placing best move > update failure > returning false >> move success > returning true
-    if aBoard.update(aRow=best_row, aColumn=best_column, aMark="O") == -5: return False
+    # placing best move > invalid move | update failure > returning false
+    if aBoard.update(aRow=best_row, aColumn=best_column, aMark="O") in [0,-5]: return False
+
+    ### function termination -------------------------------------------------------------------------------------------
+
+    # move success > returning true
     return True
 
 ########################################################################################################################
