@@ -340,41 +340,47 @@ def game_loop() -> bool:
 
     ### function init --------------------------------------------------------------------------------------------------
 
-    ### initializing game board and starting player
+    ### game board and starting player init
     board: GameBoard = GameBoard(); player: str = "X"
 
-    ### game loop init -------------------------------------------------------------------------------------------------
+    ### game loop ------------------------------------------------------------------------------------------------------
 
     # looping while terminal condition occurs
     while True:
 
-        ### placing and displaying moves -------------------------------------------------------------------------------
+        ### loop: placing and displaying moves .........................................................................
 
         # displaying game board > print failure > returning false
         if not board.display(): return False
-        # human turn >> placing human move > move failure > returning false
-        if player == "X":
-            if not human_move(aBoard=board): return False
-        # AI turn >> placing AI move > move failure > returning false
-        else:
-            if not ai_move(aBoard=board): return False
+        # invalid player > returning false
+        if player not in ["X","O"]: return False
+        # human turn > placing human move > move failure > returning false
+        if player == "X" and not human_move(aBoard=board): return False
+        # AI turn > placing AI move > move failure > returning false
+        if player == "O" and not ai_move(aBoard=board): return False
         
-        ### checking for terminal condition (win | lose | draw | failure) ----------------------------------------------
+        ### loop: checking for terminal condition ......................................................................
 
         # reading condition code
         condition: str = board.check()
+        # no terminal condition > switching turns > restarting loop
+        if len(condition) == 0: player = "O" if player == "X" else "X" if player == "O" else "@"; continue
         # check failure > returning false
         if condition == "@": return False
-        # no terminal condition > switching turns > restarting loop
-        elif not condition: player = "O" if player == "X" else "X"; continue
-        # terminal condition
-        else:
-            # displaying final game board > print failure > returning false
-            if not board.display(): return False
-            # displaying separator line >> displaying result >> returning true
-            print()
-            print("You won!" if condition == "X" else "AI won!" if condition == "O" else "It is a draw!")
-            return True
+
+        ### loop: executing on terminal condition ......................................................................
+
+        # displaying final game board > print failure > returning false
+        if not board.display(): return False
+        # displaying result
+        print("\nYou won!" if condition == "X" else "\nAI won!" if condition == "O" else "\nIt is a draw!")
+        # terminating loop
+        break
+    
+    ### function termination -------------------------------------------------------------------------------------------
+
+    # game loop success > returning true
+    return True
 
 ### main loop function for ending | restarting game ####################################################################
 def main_loop() -> None:
